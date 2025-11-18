@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -159,12 +160,13 @@ func routeIt(path string) (Route, []string, map[string]string, bool) {
 			p_len = len(url_segs)
 		}
 
-		//Step through the pattern and the path simultaneously to look for matches
-		anyParams, namedParams, found = match(pattern, url_segs[:p_len])
 		// Should be ok lol, maybe further investigate
-		if string(route.Pattern)[len(string(route.Pattern))-1:len(string(route.Pattern))] == "/" {
+		if string(route.Pattern)[len(string(route.Pattern))-1:len(string(route.Pattern))] == "/" &&
+			strings.Contains(filepath.Base(path), ".") {
 			found = true
 		}
+		//Step through the pattern and the path simultaneously to look for matches
+		anyParams, namedParams, found = match(pattern, url_segs[:p_len])
 
 		if found {
 			break
