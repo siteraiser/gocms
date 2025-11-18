@@ -149,7 +149,7 @@ func routeIt(path string) (Route, []string, map[string]string, bool) {
 	var namedParams map[string]string
 	var found bool
 	var route Route
-	//var routeNo int
+
 	for _, route = range routes.List {
 
 		url_segs := strings.Split(path, "/")

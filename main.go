@@ -21,9 +21,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	//Serve assets
-	//http.Handle("/assets/", http.StripPrefix("/assets/", system.Fs(http.Dir("./assets"))))
+
 	//Add routes
+	//Serve assets
 	router.Add("/assets/", http.StripPrefix("/assets/", system.Fs(http.Dir("./assets"))))
 	router.Add("/testpage/{$}", controller.ServicesHandler("test"))
 	//router.Add("/another/{$}/and/{$}", controller.TestHandler())
