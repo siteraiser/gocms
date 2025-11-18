@@ -164,10 +164,10 @@ func routeIt(path string) (Route, []string, map[string]string, bool) {
 		if string(route.Pattern)[len(string(route.Pattern))-1:len(string(route.Pattern))] == "/" &&
 			strings.Contains(filepath.Base(path), ".") {
 			found = true
+		} else {
+			//Step through the pattern and the path simultaneously to look for matches
+			anyParams, namedParams, found = match(pattern, url_segs[:p_len])
 		}
-		//Step through the pattern and the path simultaneously to look for matches
-		anyParams, namedParams, found = match(pattern, url_segs[:p_len])
-
 		if found {
 			break
 		}
