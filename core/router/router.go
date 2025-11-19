@@ -8,24 +8,24 @@ import (
 	"strings"
 )
 
-type Handler struct{}
-
-type Response struct {
-	Page Page
-}
-
-type Page struct {
-	Attributes struct {
-		Header http.Header
+/*
+	type Response struct {
+		Page Page
 	}
-	Meta    string
-	Content string
-	Assets  map[string]string
-}
 
+	type Page struct {
+		Attributes struct {
+			Header http.Header
+		}
+		Meta    string
+		Content string
+		Assets  map[string]string
+	}
+*/
 type Route struct {
 	Pattern    string
 	Controller http.Handler
+	Handler    Handler
 }
 type Routes struct {
 	List []Route
@@ -52,9 +52,11 @@ func NamedValue(name string) string {
 func Add(pattern string, controller http.Handler) {
 	var route Route
 	route.Pattern = pattern
-	route.Controller = controller
+	route.Controller = controller // MakeFunc(controller)
 	routes.List = append(routes.List, route)
 }
+
+type Handler struct{}
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	//check for other resources that aren't using the default routing here

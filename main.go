@@ -3,10 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-
-	controller "gocms/controllers"
-	system "gocms/controllers/system"
-	"gocms/router"
+	"gocms/core/router"
 	"net"
 	"net/http"
 	"strconv"
@@ -23,13 +20,10 @@ func main() {
 	}
 
 	//Add routes
+	addRoutes()
 	//Serve assets
 
-	router.Add("/assets/", http.StripPrefix("/assets/", system.Fs(http.Dir("./assets"))))
-	router.Add("/", controller.Index("Welcome!"))
-	router.Add("/testpage/{$}", controller.ServicesHandler("test"))
-	router.Add("/another/{$}/and/{$}", controller.TestHandler())
-	router.Add("/another/{id}/link", controller.OtherHandler("test2"))
+	//router.Add("/login", controller.LoginHandler)
 
 	handler := &router.Handler{}
 	fmt.Println("Starting server on :8080")

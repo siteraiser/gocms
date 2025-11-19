@@ -2,7 +2,7 @@ package controller
 
 import (
 	"fmt"
-	"gocms/router"
+	"gocms/core/router"
 	"net/http"
 )
 
@@ -43,3 +43,12 @@ func TestHandler() http.Handler {
 	}
 	return http.HandlerFunc(fn)
 }
+
+/*
+func LoginHandler(w http.ResponseWriter, r *http.Request)  {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	fmt.Fprintf(w, "<div>LOLS: %v\n </div>", router.AnyValue(0))
+	 http.Handler.ServeHTTP(,w, r)
+}
+
+*/
