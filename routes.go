@@ -1,8 +1,8 @@
 package main
 
 import (
-	router "gocms/app"
 	system "gocms/app/controllers"
+	router "gocms/app/router"
 	controller "gocms/controllers"
 	"net/http"
 )

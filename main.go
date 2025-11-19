@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"gocms/app"
+	"gocms/app/router"
 	"net"
 	"net/http"
 	"strconv"
@@ -19,13 +20,13 @@ func main() {
 		panic(err)
 	}
 
-	App := app.NewApp(&app.Handler{})
+	app.NewApp(&router.Handler{})
 
 	//Add routes	//Serve assets
 	addRoutes()
 
 	fmt.Println("Starting server on :" + port)
-	if err := http.Serve(listener, App.Router.Handler); err != nil {
+	if err := http.Serve(listener, app.Router.Handler); err != nil {
 		panic(err)
 	}
 }

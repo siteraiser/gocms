@@ -1,19 +1,31 @@
 package app
 
 import (
+	"gocms/app/router"
 	"net/http"
 )
 
-type App struct {
-	Router Router
-}
-
-type Router struct {
+type Routing struct {
 	Handler http.Handler
 }
 
-func NewApp(ah http.Handler) App {
-	return App{Router{ah}}
+var Router Routing
+
+func NewApp(ah http.Handler) {
+	Router = Routing{
+		ah,
+	}
+
+}
+
+func (h *Routing) AnyValue(index int) string {
+	return router.AnyValue(index)
+}
+func (h *Routing) AnyValues() []string {
+	return router.AnyValues()
+}
+func (h *Routing) NamedValue(name string) string {
+	return router.NamedValue(name)
 }
 
 type Page struct {
