@@ -79,6 +79,8 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Println("Not found with router: ", path)
+	fmt.Println("route: ", route)
 	w.WriteHeader(http.StatusNotFound)
 	w.Write([]byte("Custom 404: Page not found"))
 }
@@ -151,7 +153,7 @@ func routeIt(path string) (Route, []string, map[string]string, bool) {
 	i := 0
 	var anyParams []string
 	var namedParams map[string]string
-	var found bool
+	found := false
 	var route Route
 
 	for _, route = range routes.List {
@@ -171,9 +173,14 @@ func routeIt(path string) (Route, []string, map[string]string, bool) {
 		pattern_str_len := len(string(route.Pattern))
 		//Check if the pattern is a "folder/" and request is a file
 		if pattern_str[pattern_str_len-1:pattern_str_len] == "/" &&
-			strings.Contains(filepath.Base(path), ".") {
-			// If is a file...
-			found = true
+			strings.Contains(filepath.Base(path), ".") { //should be improved (maybe add allowed file types list...)
+			if "/"+path[0:pattern_str_len-1] != pattern_str {
+				// If is a file...
+				found = false
+			} else {
+				found = true
+			}
+			break
 		} else {
 			//Step through the pattern and the path simultaneously to look for matches
 			anyParams, namedParams, found = match(pattern, url_segs[:p_len])
