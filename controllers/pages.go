@@ -2,7 +2,7 @@ package controller
 
 import (
 	"fmt"
-	"gocms/core/router"
+	"gocms/app"
 	"net/http"
 )
 
@@ -19,7 +19,7 @@ func Index(welcome_message string) http.Handler {
 func OtherHandler(arguments string) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		fmt.Fprintf(w, "<div>Named Values %v\n </div>", router.NamedValue("id"))
+		fmt.Fprintf(w, "<div>Named Values %v\n </div>", app.NamedValue("id"))
 	}
 	return http.HandlerFunc(fn)
 }
@@ -27,7 +27,7 @@ func OtherHandler(arguments string) http.Handler {
 func ServicesHandler(arguments string) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		fmt.Fprintf(w, "<div>Any value 0: %v\n </div>", router.AnyValue(0))
+		fmt.Fprintf(w, "<div>Any value 0: %v\n </div>", app.AnyValue(0))
 	}
 	return http.HandlerFunc(fn)
 }
@@ -36,7 +36,7 @@ func TestHandler() http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		output := ""
-		for _, value := range router.AnyValues() {
+		for _, value := range app.AnyValues() {
 			output += value
 		}
 		fmt.Fprintf(w, "<div>All any values %v\n </div>", output)

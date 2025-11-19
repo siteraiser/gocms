@@ -1,4 +1,4 @@
-package router
+package app
 
 import (
 	"errors"
@@ -25,7 +25,6 @@ import (
 type Route struct {
 	Pattern    string
 	Controller http.Handler
-	Handler    Handler
 }
 type Routes struct {
 	List []Route
@@ -34,6 +33,13 @@ type Routes struct {
 var routes Routes
 var AnyParams []string
 var NamedParams map[string]string
+
+/*
+type UrlParams struct {
+	Any []string
+	Named map[string]string
+}
+*/
 
 func AnyValues() []string {
 	return AnyParams
