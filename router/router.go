@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"path/filepath"
-	"strconv"
 	"strings"
 )
 
@@ -39,11 +38,10 @@ var NamedParams map[string]string
 func AnyValues() []string {
 	return AnyParams
 }
-func AnyValue(index any) string {
-	if index != nil {
-		if i, err := strconv.Atoi(index.(string)); err == nil {
-			return AnyParams[i]
-		}
+func AnyValue(index int) string {
+
+	if len(AnyParams)-1 >= index {
+		return AnyParams[index]
 	}
 	return ""
 }
@@ -64,15 +62,19 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err == nil {
 		return
 	}
-	//No manual checks matched the request URL, now try router
-	path := strings.TrimLeft(r.URL.Path, "/")
 
+	//No manual checks matched the request URL, now try router
+	path := r.URL.Path
+	if path != "/" {
+		path = strings.TrimLeft(path, "/")
+	}
 	route, anyParams, namedParams, found := routeIt(path)
 	AnyParams = anyParams
 	NamedParams = namedParams
 
 	if found {
-		fmt.Println("Served from router: ", r.URL.Path)
+		fmt.Println("Served from router: ", path)
+		fmt.Println("route: ", route)
 		route.Controller.ServeHTTP(w, r)
 		return
 	}
@@ -83,13 +85,15 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func GetPage(w http.ResponseWriter, r *http.Request) error {
 	//Overrides normal app routes
-	if r.URL.Path == "/" {
+	/*if r.URL.Path == "/" {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		fmt.Fprintf(w, "<div>HOME:%v\n <a href='/task/1'>task 1</a> <a href='/app/1'>app 1</a></div>", r.URL.Path)
 
-	} else if r.URL.Path == "/test" {
+	} else
+	*/
+	if r.URL.Path == "/test" {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		fmt.Fprintf(w, "<div><img src='/assets/media/images/pic.png'>test ok path:%v\n <a href='/'>home</a> <a href='/task/1'>task 1</a></div>", r.URL.Path)
+		fmt.Fprintf(w, "<div><img src='/assets/media/images/pic.png'>test ok path:%v\n <a href='/'>home</a> <a href='/another/value1/and/value2'>Test page</a></div>", r.URL.Path)
 	} else {
 		err := errors.New("Something went wrong")
 		return err
@@ -151,7 +155,10 @@ func routeIt(path string) (Route, []string, map[string]string, bool) {
 	var route Route
 
 	for _, route = range routes.List {
-
+		if path == "/" && route.Pattern == "/" {
+			found = true
+			break
+		}
 		url_segs := strings.Split(path, "/")
 		pattern := strings.Split(strings.TrimLeft(string(route.Pattern), "/"), "/")
 
@@ -160,9 +167,12 @@ func routeIt(path string) (Route, []string, map[string]string, bool) {
 			p_len = len(url_segs)
 		}
 
-		// Should be ok lol, maybe further investigate
-		if string(route.Pattern)[len(string(route.Pattern))-1:len(string(route.Pattern))] == "/" &&
+		pattern_str := string(route.Pattern)
+		pattern_str_len := len(string(route.Pattern))
+		//Check if the pattern is a "folder/" and request is a file
+		if pattern_str[pattern_str_len-1:pattern_str_len] == "/" &&
 			strings.Contains(filepath.Base(path), ".") {
+			// If is a file...
 			found = true
 		} else {
 			//Step through the pattern and the path simultaneously to look for matches
