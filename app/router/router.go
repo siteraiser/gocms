@@ -35,13 +35,7 @@ var routes Routes
 var AnyParams []string
 var NamedParams map[string]string
 
-/*
-type UrlParams struct {
-	Any []string
-	Named map[string]string
-}
-*/
-
+// Parameter Functions
 func AnyValues() []string {
 	return AnyParams
 }
@@ -56,11 +50,11 @@ func NamedValue(name string) string {
 	return NamedParams[name]
 }
 
+// Add a route
 func Add(pattern string, controller http.Handler) {
 	var route Route
 
 	route.Controller = controller
-
 	if strings.HasPrefix(pattern, "GET ") {
 		route.RequestType = "GET"
 		route.Pattern = pattern[4:]
@@ -137,15 +131,16 @@ func routeIt(path string, method string) (Route, []string, map[string]string, bo
 		for _, value := range pattern {
 			pattern_param := string(value)
 			if len(url_segs) > i && len(pattern_param) > 0 {
-				fmt.Println("TF....", pattern_param)
+				//if segment is not a parameter
 				if pattern_param[0:1] != "{" && pattern_param[len(pattern_param)-2:len(pattern_param)-1] != "}" {
-
+					//if it matches
 					if url_segs[i] == pattern_param {
 						match = true
 					} else {
 						return []string{}, map[string]string{}, false
 					}
 				} else {
+					//Save any {$} and named {id} parameter values
 					if url_segs[i] != "" {
 						parametervalue := pattern_param[1 : len(pattern_param)-1]
 						if parametervalue == "$" {
