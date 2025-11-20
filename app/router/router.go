@@ -173,20 +173,19 @@ func routeIt(path string, method string) (Route, []string, map[string]string, bo
 	var route Route
 
 	for _, route = range routes.List {
+
 		if path == "/" && route.Pattern == "/" {
+			//index
 			found = true
 			break
 		}
 		url_segs := strings.Split(path, "/")
 		pattern := strings.Split(strings.TrimLeft(string(route.Pattern), "/"), "/")
 
-		p_len := len(pattern)
-		if p_len > len(url_segs) {
-			p_len = len(url_segs)
-		}
-		//Filter by request type
 		pattern_str := string(route.Pattern)
 		pattern_str_len := len(string(route.Pattern))
+
+		//Filter by request type
 		if route.RequestType != "" && route.RequestType != method {
 			found = false
 			break
@@ -203,6 +202,8 @@ func routeIt(path string, method string) (Route, []string, map[string]string, bo
 			}
 			break
 		} else {
+
+			p_len := min(len(pattern), len(url_segs))
 			//Step through the pattern and the path simultaneously to look for matches
 			anyParams, namedParams, found = match(pattern, url_segs[:p_len])
 		}

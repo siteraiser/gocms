@@ -13,7 +13,7 @@ func Index(welcome_message string) http.Handler {
 
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-		fmt.Fprintf(w, "%v<a href='/another/value1/and/value2'>Test page</a> - <a href='/test'>Middlewarish page</a>", string(welcome_message))
+		fmt.Fprintf(w, "%v<a href='/test'>Test page</a> - <a href='/another/value1/and/value2'>Test page</a> ", string(welcome_message))
 	}
 	return http.HandlerFunc(fn)
 }
