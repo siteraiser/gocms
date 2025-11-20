@@ -23,8 +23,9 @@ import (
 	}
 */
 type Route struct {
-	Pattern    string
-	Controller http.Handler
+	Pattern     string
+	Controller  http.Handler
+	RequestType string
 }
 type Routes struct {
 	List []Route
@@ -57,8 +58,20 @@ func NamedValue(name string) string {
 
 func Add(pattern string, controller http.Handler) {
 	var route Route
-	route.Pattern = pattern
-	route.Controller = controller // MakeFunc(controller)
+
+	route.Controller = controller
+
+	if strings.HasPrefix(pattern, "GET ") {
+		route.RequestType = "GET"
+		route.Pattern = pattern[4:]
+	} else if strings.HasPrefix(pattern, "POST ") {
+		route.RequestType = "POST"
+		route.Pattern = pattern[5:]
+	} else {
+		route.RequestType = ""
+		route.Pattern = pattern
+	}
+
 	routes.List = append(routes.List, route)
 }
 
@@ -76,7 +89,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if path != "/" {
 		path = strings.TrimLeft(path, "/")
 	}
-	route, anyParams, namedParams, found := routeIt(path)
+	route, anyParams, namedParams, found := routeIt(path, r.Method)
 	AnyParams = anyParams
 	NamedParams = namedParams
 
@@ -113,7 +126,7 @@ func GetPage(w http.ResponseWriter, r *http.Request) error {
 
 }
 
-func routeIt(path string) (Route, []string, map[string]string, bool) {
+func routeIt(path string, method string) (Route, []string, map[string]string, bool) {
 
 	match := func(pattern []string, url_segs []string) ([]string, map[string]string, bool) {
 		i := 0
@@ -124,7 +137,7 @@ func routeIt(path string) (Route, []string, map[string]string, bool) {
 		for _, value := range pattern {
 			pattern_param := string(value)
 			if len(url_segs) > i && len(pattern_param) > 0 {
-
+				fmt.Println("TF....", pattern_param)
 				if pattern_param[0:1] != "{" && pattern_param[len(pattern_param)-2:len(pattern_param)-1] != "}" {
 
 					if url_segs[i] == pattern_param {
@@ -176,9 +189,14 @@ func routeIt(path string) (Route, []string, map[string]string, bool) {
 		if p_len > len(url_segs) {
 			p_len = len(url_segs)
 		}
-
+		//Filter by request type
 		pattern_str := string(route.Pattern)
 		pattern_str_len := len(string(route.Pattern))
+		if route.RequestType != "" && route.RequestType != method {
+			found = false
+			break
+		}
+
 		//Check if the pattern is a "folder/" and request is a file
 		if pattern_str[pattern_str_len-1:pattern_str_len] == "/" &&
 			strings.Contains(filepath.Base(path), ".") { //should be improved (maybe add allowed file types list...)

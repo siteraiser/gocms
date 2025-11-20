@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+// add routing from routing package to app
 type Routing struct {
 	Handler http.Handler
 }
