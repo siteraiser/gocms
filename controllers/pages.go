@@ -22,8 +22,13 @@ func Index(welcome_message string) http.Handler {
 				},
 			},
 		}
-		app.AddView("/home.hbs", ctx)
-		fmt.Fprintf(w, "%v<a href='/test'>Test page</a>- <a href='/another/value1/and/value2'>Test page</a> ", string(welcome_message)+app.GetView().Output)
+
+		home, _ := app.AddView("home.hbs", ctx)
+		app.ClearOutput()
+		ctx2 := models.Page{Welcome: string(welcome_message), Body: home + "<a href='/test'>Test page</a><br><a href='/another/value1/and/value2'>Any Vars Test page</a><br><a href='/another/value1/link'>Named Vars Test page</a>"}
+
+		app.AddView("document.hbs", ctx2)
+		fmt.Fprintf(w, "%v", app.GetOutput())
 	})
 }
 

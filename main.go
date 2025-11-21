@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"gocms/app"
 	"gocms/app/router"
-	"log"
 	"net"
 	"net/http"
 	"strconv"
@@ -19,11 +18,6 @@ func main() {
 	listener, err := net.Listen("tcp", ":"+port)
 	if err != nil {
 		panic(err)
-	}
-	_, err = listener.Accept()
-	if err != nil {
-		log.Printf("Accept error: %v", err)
-
 	}
 
 	app.NewApp(&router.Handler{})

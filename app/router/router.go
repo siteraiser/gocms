@@ -108,7 +108,6 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}()
 		return
 	}
-
 	fmt.Println("Not found with router: ", path)
 	fmt.Println("route: ", route)
 	w.WriteHeader(http.StatusNotFound)

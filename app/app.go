@@ -32,7 +32,7 @@ func (h *Routing) NamedValue(name string) string {
 }
 
 // add views
-func AddView(location string, args any) error {
+func AddView(location string, args any) (string, error) {
 	return view.AddView(location, args)
 }
 
@@ -41,7 +41,8 @@ func GetView() view.View {
 }
 
 func GetOutput() string {
-	return view.GetView().Output
+	res := view.GetView()
+	return res.Output
 }
 
 func ClearOutput() {

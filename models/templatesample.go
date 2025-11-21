@@ -15,3 +15,8 @@ type Post struct {
 	Body     string
 	Comments []Comment
 }
+
+type Page struct {
+	Welcome string
+	Body    string
+}
