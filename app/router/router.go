@@ -73,6 +73,7 @@ func Add(pattern string, controller http.Handler) {
 type Handler struct{}
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	//Capture the output and send it but clear the output on the way out
 	flusher, ok := w.(http.Flusher)
 	if !ok {
 		http.Error(w, "Streaming unsupported!", http.StatusInternalServerError)
@@ -98,7 +99,8 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Served from router: ", path)
 		fmt.Println("route: ", route)
 		route.Controller.ServeHTTP(w, r)
-		// Flush to ensure client gets the response now
+
+		//If combining content from multiple views, flush after serving
 		flusher.Flush()
 		// Do background work without blocking the client
 		go func() {
