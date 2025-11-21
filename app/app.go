@@ -61,8 +61,8 @@ func AddView(location string, args any) error {
 	//add more types of rendering here...
 	return nil
 }
-func GetContent() string {
-	return v.Content
+func GetView() View {
+	return v
 }
 
 /*
