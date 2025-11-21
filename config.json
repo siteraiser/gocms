@@ -1,0 +1,11 @@
+{
+
+    "name":"My App",
+    "settings":{
+        "preferences":{
+            "language":"en-us",
+            "templateEngine":""
+        }
+    }
+
+}

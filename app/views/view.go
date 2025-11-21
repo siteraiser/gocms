@@ -18,7 +18,7 @@ type View struct {
 var v = View{}
 
 func AddView(location string, args any) (string, error) {
-
+	//no reason to choose engine for now with: app.GetConfig()...
 	if filepath.Ext(location) == ".hbs" {
 		data, err := os.ReadFile("./views/" + location)
 		if err != nil {
