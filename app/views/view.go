@@ -59,6 +59,7 @@ type Create interface {
 	createView() View
 }
 
+/*
 type Mustache struct{}
 
 func (m Mustache) createView() mustache.View {
@@ -73,3 +74,4 @@ func (h Handlebars) createView() handlebars.View {
 	V := handlebars.NewView()
 	return V
 }
+*/
