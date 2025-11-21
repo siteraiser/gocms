@@ -22,8 +22,8 @@ func Index(welcome_message string) http.Handler {
 				},
 			},
 		}
-		app.AddView("./views/home.hbs", ctx)
-		fmt.Fprintf(w, "%v<a href='/test'>Test page</a>- <a href='/another/value1/and/value2'>Test page</a> ", string(welcome_message)+app.GetView().Content)
+		app.AddView("/home.hbs", ctx)
+		fmt.Fprintf(w, "%v<a href='/test'>Test page</a>- <a href='/another/value1/and/value2'>Test page</a> ", string(welcome_message)+app.GetView().Output)
 	})
 }
 

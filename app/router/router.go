@@ -3,6 +3,7 @@ package router
 import (
 	"errors"
 	"fmt"
+	view "gocms/app/views"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -72,6 +73,12 @@ func Add(pattern string, controller http.Handler) {
 type Handler struct{}
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	flusher, ok := w.(http.Flusher)
+	if !ok {
+		http.Error(w, "Streaming unsupported!", http.StatusInternalServerError)
+		return
+	}
+
 	//check for other resources that aren't using the default routing here
 	err := GetPage(w, r)
 	if err == nil {
@@ -91,6 +98,12 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Served from router: ", path)
 		fmt.Println("route: ", route)
 		route.Controller.ServeHTTP(w, r)
+		// Flush to ensure client gets the response now
+		flusher.Flush()
+		// Do background work without blocking the client
+		go func() {
+			view.ClearOutput()
+		}()
 		return
 	}
 
