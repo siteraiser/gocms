@@ -1,19 +1,15 @@
 package mustache
 
 import (
+	"gocms/models"
+
 	"github.com/cbroglie/mustache"
 )
 
-type View struct {
-	Args   any
-	Output string
-}
-
 func Render(source string, data any) (string, error) {
-
 	return mustache.Render(source, data)
 }
 
-func NewView() View {
-	return View{}
+func NewView() models.View {
+	return models.View{}
 }

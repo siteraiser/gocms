@@ -3,6 +3,7 @@ package app
 import (
 	"gocms/app/router"
 	view "gocms/app/views"
+	"gocms/models"
 	"net/http"
 )
 
@@ -36,7 +37,7 @@ func AddView(location string, args any) (string, error) {
 	return view.AddView(location, args)
 }
 
-func GetView() view.View {
+func GetView() models.View {
 	return view.GetView()
 }
 

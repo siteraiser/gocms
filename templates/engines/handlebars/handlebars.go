@@ -1,20 +1,15 @@
 package handlebars
 
 import (
+	"gocms/models"
+
 	"github.com/flowchartsman/handlebars/v3"
 )
 
-type View struct {
-	Args   any
-	Output string
-}
-
 func Render(source string, data any) (string, error) {
-
 	return handlebars.Render(source, data)
 }
 
-func NewView() View {
-
-	return View{}
+func NewView() models.View {
+	return models.View{}
 }
