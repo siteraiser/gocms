@@ -3,19 +3,28 @@ package controller
 import (
 	"fmt"
 	"gocms/app"
+	"gocms/models"
 	"net/http"
 )
 
 // controllers
 
 func Index(welcome_message string) http.Handler {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-
-		fmt.Fprintf(w, "%v<a href='/test'>Test page</a> - <a href='/another/value1/and/value2'>Test page</a> ", string(welcome_message))
-	}
-	return http.HandlerFunc(fn)
+		ctx := models.Post{
+			models.Person{"Jean", "Valjean"},
+			"Life is difficult",
+			[]models.Comment{
+				models.Comment{
+					models.Person{"Marcel", "Beliveau"},
+					"LOL!",
+				},
+			},
+		}
+		app.AddView("./views/home.hbs", ctx)
+		fmt.Fprintf(w, "%v<a href='/test'>Test page</a>- <a href='/another/value1/and/value2'>Test page</a> ", string(welcome_message)+app.GetContent())
+	})
 }
 
 func OtherHandler(arguments string) http.Handler {

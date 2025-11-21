@@ -1,0 +1,4 @@
+github.com/flowchartsman/handlebars/v3 v3.0.1 h1:16YAX2vJ2X2wgliz4QoUNyOJDLmnZ7Uldg/5w49/z3A=
+github.com/flowchartsman/handlebars/v3 v3.0.1/go.mod h1:HGaRKxnZS8F2cteR3rusKeY+lI9fbnqwwesT+A3a18I=
+gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
+gopkg.in/yaml.v2 v2.4.0/go.mod h1:RDklbk79AGWmwhnvt/jBztapEOGDOx6ZbXqjP6csGnQ=

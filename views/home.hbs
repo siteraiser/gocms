@@ -1,0 +1,11 @@
+<div class="post">
+  <h1>By {{author.firstName}} {{author.lastName}}</h1>
+  <div class="body">{{body}}</div>
+
+  <h1>Comments</h1>
+
+  {{#each comments}}
+  <h2>By {{author.firstName}} {{author.lastName}}</h2>
+  <div class="body">{{content}}</div>
+  {{/each}}
+</div>
