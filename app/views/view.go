@@ -3,7 +3,7 @@ package view
 import (
 	"fmt"
 	"gocms/models"
-	"gocms/templates"
+	engine "gocms/templates"
 	"os"
 	"path/filepath"
 )
@@ -21,9 +21,9 @@ func AddView(location string, args any) (string, error) {
 	}
 	err = nil
 	//Find the rendering engine in the registry (outside of app folder) and render
-	for i, e := range templates.Registry {
+	for i, e := range engine.Registry {
 		if e.Ext == filepath.Ext(location) {
-			v.Output, _ = templates.Registry[i].Render.Render(string(data), args)
+			v.Output, _ = engine.Registry[i].Render.Render(string(data), args)
 		}
 	}
 	/*
