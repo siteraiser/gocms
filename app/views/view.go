@@ -2,7 +2,8 @@ package view
 
 import (
 	"fmt"
-	"gocms/models"
+
+	models "gocms/app/views/templates/defs"
 	engine "gocms/templates"
 	"os"
 	"path/filepath"

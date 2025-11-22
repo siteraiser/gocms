@@ -2,7 +2,7 @@ package templates
 
 import (
 	template "gocms/app/views/templates"
-	"gocms/models"
+	models "gocms/app/views/templates/defs"
 	"gocms/templates/engines/handlebars"
 	"gocms/templates/engines/mustache"
 )

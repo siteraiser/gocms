@@ -3,7 +3,8 @@ package app
 import (
 	"gocms/app/router"
 	view "gocms/app/views"
-	"gocms/models"
+	models "gocms/app/views/templates/defs"
+
 	"net/http"
 )
 
