@@ -22,17 +22,11 @@ func AddView(location string, args any) (string, error) {
 	err = nil
 
 	if filepath.Ext(location) == ".hbs" {
-
-		templates.Handlebars.CreateView(templates.Handlebars{})
-		templates.Handlebars.Render(templates.Handlebars{}, string(data), args)
-		v.Output = templates.V.Output
-
+		hb := templates.Handlebars{}
+		v.Output, _ = hb.Render(string(data), args)
 	} else if filepath.Ext(location) == ".mustache" {
-
-		templates.Mustache.CreateView(templates.Mustache{})
-		templates.Mustache.Render(templates.Mustache{}, string(data), args)
-		v.Output = templates.V.Output
-
+		hb := templates.Mustache{}
+		v.Output, _ = hb.Render(string(data), args)
 	}
 	//add more types of rendering here...
 	return v.Output, nil
@@ -44,5 +38,3 @@ func GetView() models.View {
 func ClearOutput() {
 	v.Output = ""
 }
-
-/**/
