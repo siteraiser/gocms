@@ -20,10 +20,10 @@ func AddView(location string, args any) (string, error) {
 		return "", err
 	}
 	err = nil
-
-	for i, e := range templates.Registry.List {
+	//Find the rendering engine in the registry (outside of app folder) and render
+	for i, e := range templates.Registry {
 		if e.Ext == filepath.Ext(location) {
-			v.Output, _ = templates.Registry.List[i].Render.Render(string(data), args)
+			v.Output, _ = templates.Registry[i].Render.Render(string(data), args)
 		}
 	}
 	/*

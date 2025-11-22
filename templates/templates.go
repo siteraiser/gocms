@@ -18,16 +18,6 @@ func RenderView(h any, s string, a any, renderer func(s string, a any) (string, 
 	return V.Output, err
 }
 
-var hbs = Engine{
-	Ext:    ".hbs",
-	Render: Handlebars{},
-}
-
-var mst = Engine{
-	Ext:    ".mustache",
-	Render: Mustache{},
-}
-
 type Engine struct {
 	Ext    string
 	Render Renderer
@@ -40,11 +30,20 @@ type Engines struct {
 	List []Engine
 }
 
-var Registry = Engines{
-	List: []Engine{
-		hbs,
-		mst,
-	},
+// Filled in by user...
+var Registry = []Engine{
+	hbs,
+	mst,
+}
+
+var hbs = Engine{
+	Ext:    ".hbs",
+	Render: Handlebars{},
+}
+
+var mst = Engine{
+	Ext:    ".mustache",
+	Render: Mustache{},
 }
 
 type Mustache struct{}
