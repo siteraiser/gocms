@@ -13,4 +13,6 @@ func addRoutes() {
 	router.Add("/testpage/{$}", controller.ServicesHandler("test"))
 	router.Add("GET /another/{$}/and/{$}", controller.TestHandler())
 	router.Add("/another/{id}/link", controller.OtherHandler("test2"))
+	router.Add("/random", controller.RandoHandler())
+
 }

@@ -17,7 +17,7 @@ type Post struct {
 }
 
 type Page struct {
-	Lang    string
-	Welcome string
-	Body    string
+	Lang  string
+	Title string
+	Body  string
 }
