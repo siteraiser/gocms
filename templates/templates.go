@@ -9,6 +9,44 @@ import (
 
 var V models.View
 
+func RenderView(h any, s string, a any, renderer func(s string, a any) (string, error)) (string, error) {
+	out, err := renderer(s, a)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	V.Output = out
+	return V.Output, err
+}
+
+var hbs = Engine{
+	Ext:    ".hbs",
+	Render: Handlebars{},
+}
+
+var mst = Engine{
+	Ext:    ".mustache",
+	Render: Mustache{},
+}
+
+type Engine struct {
+	Ext    string
+	Render Renderer
+}
+type Renderer interface {
+	Render(string, any) (string, error)
+}
+
+type Engines struct {
+	List []Engine
+}
+
+var Registry = Engines{
+	List: []Engine{
+		hbs,
+		mst,
+	},
+}
+
 type Mustache struct{}
 
 func (h Mustache) Render(s string, a any) (string, error) {
@@ -27,13 +65,4 @@ func (h Handlebars) Render(s string, a any) (string, error) {
 		results, err := handlebars.Render(s, a)
 		return results, err
 	})
-}
-
-func RenderView(h any, s string, a any, renderer func(s string, a any) (string, error)) (string, error) {
-	out, err := renderer(s, a)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	V.Output = out
-	return V.Output, err
 }

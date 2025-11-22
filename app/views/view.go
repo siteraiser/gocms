@@ -21,13 +21,20 @@ func AddView(location string, args any) (string, error) {
 	}
 	err = nil
 
-	if filepath.Ext(location) == ".hbs" {
-		hb := templates.Handlebars{}
-		v.Output, _ = hb.Render(string(data), args)
-	} else if filepath.Ext(location) == ".mustache" {
-		hb := templates.Mustache{}
-		v.Output, _ = hb.Render(string(data), args)
+	for i, e := range templates.Registry.List {
+		if e.Ext == filepath.Ext(location) {
+			v.Output, _ = templates.Registry.List[i].Render.Render(string(data), args)
+		}
 	}
+	/*
+		if filepath.Ext(location) == ".hbs" {
+
+		} else if filepath.Ext(location) == ".mustache" {
+			hb := templates.Mustache{}
+			v.Output, _ = hb.Render(string(data), args)
+		}
+	*/
+
 	//add more types of rendering here...
 	return v.Output, nil
 }
