@@ -22,7 +22,6 @@ func main() {
 
 	app.NewApp(&router.Handler{})
 
-	//Add routes	//Serve assets
 	addRoutes()
 
 	fmt.Println("Starting server on :" + port)
