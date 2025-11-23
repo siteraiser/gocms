@@ -58,13 +58,19 @@ func Add(pattern string, controller http.Handler) {
 	var route Route
 
 	route.Controller = controller
-	if strings.HasPrefix(pattern, "GET ") {
+
+	switch {
+	case strings.HasPrefix(pattern, "GET "):
+
 		route.RequestType = "GET"
-		route.Pattern = pattern[4:]
-	} else if strings.HasPrefix(pattern, "POST ") {
+		route.Pattern = strings.TrimPrefix(pattern, "GET ")
+
+	case strings.HasPrefix(pattern, "POST "):
+
 		route.RequestType = "POST"
-		route.Pattern = pattern[5:]
-	} else {
+		route.Pattern = strings.TrimPrefix(pattern, "POST ")
+
+	default:
 		route.RequestType = ""
 		route.Pattern = pattern
 	}
