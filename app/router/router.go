@@ -36,7 +36,6 @@ type Routes struct {
 
 var routes Routes
 var AnyParams []string
-var NamedParams map[string]string
 
 // Parameter Functions
 func AnyValues() []string {
@@ -49,6 +48,9 @@ func AnyValue(index int) string {
 	}
 	return ""
 }
+
+var NamedParams map[string]string
+
 func NamedValue(name string) string {
 	return NamedParams[name]
 }
