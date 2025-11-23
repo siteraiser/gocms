@@ -35,25 +35,6 @@ type Routes struct {
 }
 
 var routes Routes
-var AnyParams []string
-
-// Parameter Functions
-func AnyValues() []string {
-	return AnyParams
-}
-func AnyValue(index int) string {
-
-	if len(AnyParams)-1 >= index {
-		return AnyParams[index]
-	}
-	return ""
-}
-
-var NamedParams map[string]string
-
-func NamedValue(name string) string {
-	return NamedParams[name]
-}
 
 // Add a route
 func Add(pattern string, controller http.Handler) {
@@ -78,6 +59,26 @@ func Add(pattern string, controller http.Handler) {
 	}
 
 	routes.List = append(routes.List, route)
+}
+
+var AnyParams []string
+
+// Parameter Functions
+func AnyValues() []string {
+	return AnyParams
+}
+func AnyValue(index int) string {
+
+	if len(AnyParams)-1 >= index {
+		return AnyParams[index]
+	}
+	return ""
+}
+
+var NamedParams map[string]string
+
+func NamedValue(name string) string {
+	return NamedParams[name]
 }
 
 type Handler struct{}
