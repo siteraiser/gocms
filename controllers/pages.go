@@ -14,12 +14,12 @@ func Index(welcome_message string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		ctx := models.Post{
-			models.Person{"Jean", "Valjean"},
-			"Life is difficult",
-			[]models.Comment{
-				models.Comment{
-					models.Person{"Marcel", "Beliveau"},
-					"LOL!",
+			Author: models.Person{FirstName: "Jean", LastName: "Valjean"},
+			Body:   "Life is difficult",
+			Comments: []models.Comment{
+				{
+					Author: models.Person{FirstName: "Marcel", LastName: "Beliveau"},
+					Body:   "LOL!",
 				},
 			},
 		}
