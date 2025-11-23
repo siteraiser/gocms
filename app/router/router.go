@@ -23,11 +23,13 @@ import (
 		Assets  map[string]string
 	}
 */
+
 type Route struct {
 	Pattern     string
 	Controller  http.Handler
 	RequestType string
 }
+
 type Routes struct {
 	List []Route
 }
