@@ -8,11 +8,17 @@ import (
 )
 
 func addRoutes() {
-	router.Add("/assets/", http.StripPrefix("/assets/", system.Fs(http.Dir("./assets"))))
-	router.Add("/", controller.Index("Welcome!"))
-	router.Add("/testpage/{$}", controller.ServicesHandler("test"))
-	router.Add("GET /another/{$}/and/{$}", controller.TestHandler())
-	router.Add("/another/{id}/link", controller.OtherHandler("test2"))
-	router.Add("/random", controller.RandoHandler())
-
+	for _, route := range []struct {
+		pattern    string
+		controller http.Handler
+	}{
+		{"/assets/", http.StripPrefix("/assets/", system.Fs(http.Dir("./assets")))},
+		{"/", controller.Index("Welcome!")},
+		{"/testpage/{$}", controller.ServicesHandler("test")},
+		{"GET /another/{$}/and/{$}", controller.TestHandler()},
+		{"/another/{id}/link", controller.OtherHandler("test2")},
+		{"/random", controller.RandoHandler()},
+	} {
+		router.Add(route.pattern, route.controller)
+	}
 }
