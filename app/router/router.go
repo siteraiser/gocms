@@ -126,7 +126,7 @@ func GetPage(w http.ResponseWriter, r *http.Request) error {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		fmt.Fprintf(w, "<div><img src='/assets/media/images/pic.png'>test ok path:%v\n <a href='/'>home</a> <a href='/another/value1/and/value2'>Test page</a></div>", r.URL.Path)
 	} else {
-		err := errors.New("Something went wrong")
+		err := errors.New("something went wrong")
 		return err
 	}
 	fmt.Println("Served from primary routes: ", r.URL.Path)
