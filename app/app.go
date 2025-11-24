@@ -2,7 +2,7 @@ package app
 
 import (
 	"fmt"
-	models "gocms/app/templates/defs"
+	"gocms/app/models"
 	"gocms/templates"
 	"net/http"
 	"os"
@@ -44,7 +44,11 @@ func AddView(location string, args any) (string, error) {
 	//Find the rendering engine in the registry (outside of app folder) and render
 	for _, e := range templates.Registry {
 		if e.Ext == filepath.Ext(location) {
-			v.Output, _ = e.Engine.Render(string(data), args)
+			v.Output, err = e.Engine.Render(string(data), args)
+			if err != nil {
+				fmt.Println("Error:", err)
+				return "", err
+			}
 		}
 	}
 

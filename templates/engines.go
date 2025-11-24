@@ -23,7 +23,6 @@ type Mustache struct{}
 
 func (h Mustache) Render(s string, a any) (string, error) {
 	return mustache.Render(s, a)
-
 }
 
 type Handlebars struct{}

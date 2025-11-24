@@ -1,7 +1,7 @@
 package templates
 
 import (
-	models "gocms/app/templates/defs"
+	"gocms/app/models"
 )
 
 var V models.View
