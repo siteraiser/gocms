@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"gocms/app"
-	view "gocms/app/views"
 	"net/http"
 	"path/filepath"
 	"reflect"
@@ -163,7 +162,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		flusher.Flush()
 		// Do background work without blocking the client
 		go func() {
-			view.ClearOutput()
+			app.ClearOutput()
 		}()
 		return
 	}

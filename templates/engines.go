@@ -1,7 +1,7 @@
 package templates
 
 import (
-	template "gocms/app/views/templates"
+	template "gocms/app/templates"
 	"gocms/templates/engines/handlebars"
 	"gocms/templates/engines/mustache"
 )

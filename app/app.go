@@ -1,9 +1,12 @@
 package app
 
 import (
-	view "gocms/app/views"
-	models "gocms/app/views/templates/defs"
+	"fmt"
+	models "gocms/app/templates/defs"
+	"gocms/templates"
 	"net/http"
+	"os"
+	"path/filepath"
 )
 
 // add routing from routing package to app
@@ -26,6 +29,40 @@ var Request *http.Request
 var AnyValues = []string{}
 var NamedValues = map[string]string{}
 
+// add views and render engine
+
+var v = models.View{}
+
+func AddView(location string, args any) (string, error) {
+	//no reason to choose engine for now with: app.GetConfig()...
+	data, err := os.ReadFile("./views/" + location)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return "", err
+	}
+	err = nil
+	//Find the rendering engine in the registry (outside of app folder) and render
+	for _, e := range templates.Registry {
+		if e.Ext == filepath.Ext(location) {
+			v.Output, _ = e.Engine.Render(string(data), args)
+		}
+	}
+
+	//add more types of rendering here...
+	return v.Output, nil
+}
+
+func GetView() models.View {
+	return v
+}
+func ClearOutput() {
+	v.Output = ""
+}
+
+func GetOutput() string {
+	return v.Output
+}
+
 /*
 // Parameter Functions
 func AnyValues() []string {
@@ -38,22 +75,18 @@ func AnyValue(index int) string {
 	}
 	return ""
 }
+
+
+func RenderView(h any, s string, a any, renderer func(s string, a any) (string, error)) (string, error) {
+	out, err := renderer(s, a)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	V.Output = out
+	return V.Output, err
+}
+
+
+
+
 */
-
-// add views
-func AddView(location string, args any) (string, error) {
-	return view.AddView(location, args)
-}
-
-func GetView() models.View {
-	return view.GetView()
-}
-
-func GetOutput() string {
-	res := view.GetView()
-	return res.Output
-}
-
-func ClearOutput() {
-	view.ClearOutput()
-}
