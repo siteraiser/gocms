@@ -116,7 +116,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//No manual checks matched the request URL, now try router
-
+	var routeType = ""
 	route, anyParams, namedParams, found := routeIt(app.Path, r.Method)
 	app.AnyValues = anyParams
 	app.NamedValues = namedParams
@@ -136,11 +136,14 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			controller_name = "index"
 			package_name = app.UrlSegments[0]
 		}
-
+		if _, exists := controllers.List[package_name+"/"+controller_name]; !exists {
+			controller_name = "index"
+			package_name = "controller"
+		}
 		mvcroute := package_name + "/" + controller_name
 		fmt.Println("mvcroute: ", mvcroute)
 		if fn, exists := controllers.List[mvcroute]; exists {
-			app.RouteType = "auto"
+			routeType = "auto"
 			found = true
 			fn(w, r)
 		} else {
@@ -150,9 +153,9 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if found {
-		fmt.Println("Served from "+app.RouteType+"router: ", app.Path)
+		fmt.Println("Served from "+routeType+"router: ", app.Path)
 		fmt.Println("route: ", route)
-		if app.RouteType != "auto" {
+		if routeType != "auto" {
 			route.Controller.ServeHTTP(w, r)
 		}
 

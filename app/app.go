@@ -25,7 +25,6 @@ var UrlSegments = []string{} // Contains the url segements for the current page.
 var Request *http.Request
 var AnyValues = []string{}
 var NamedValues = map[string]string{}
-var RouteType = ""
 
 /*
 // Parameter Functions
