@@ -3,7 +3,6 @@ package autorouted
 import (
 	"fmt"
 	"gocms/app"
-	"gocms/models"
 	"net/http"
 )
 
@@ -12,8 +11,14 @@ import (
 func Index(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	ctx := models.Page{
-		Title: "Hello, World!",
+	ctx := map[string]any{
+		"Lang":  app.GetConfig().Settings.Preferences.Language,
+		"Title": "Another",
+		"Linklist": []map[string]interface{}{
+			{"Text": "Home", "Link": "/"},
+			{"Text": "Random", "Link": "/random"},
+			{"Text": "Test page 2", "Link": "/autorouted/page2"},
+		},
 	}
 
 	index, _ := app.AddView("index.mustache", ctx)

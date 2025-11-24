@@ -3,9 +3,18 @@
   
   </style>
 <main>
-<h1>{{.Title}}</h1>
-<div class="test">
-Test
+<h1>{{Title}}</h1>
+
+
+<div>
+  {{#Linklist}}
+<div class="arrays">
+
+  <div>Visit: <a href="{{Link}}">{{Text}}</a></div>
+
 </div>
+{{/Linklist}}
+</div>
+
 </main>
 {{template "partials/footer" .}}

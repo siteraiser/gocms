@@ -29,7 +29,7 @@ func Index(welcome_message string) http.Handler {
 		ctx2 := models.Page{
 			Lang:  app.GetConfig().Settings.Preferences.Language,
 			Title: string(welcome_message),
-			Body:  home + "<a href='/test'>Test page</a><br><a href='/another/value1/and/value2'>Any Vars Test page</a><br><a href='/another/value1/link'>Named Vars Test page</a>",
+			Body:  home + "<a href='/test'>Test page</a><br><a href='/another/value1/and/value2'>Any Vars Test page</a><br><a href='/another/value1/link'>Named Vars Test page</a><br><a href='/autorouted'>Auto-routed page</a>",
 		}
 
 		app.AddView("document.hbs", ctx2)

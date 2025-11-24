@@ -22,6 +22,16 @@ type Page struct {
 	Body  string
 }
 
+type Link struct {
+	Href string
+	Text string
+}
+type TestIndexPage struct {
+	Lang     string
+	Title    string
+	Linklist []Link
+}
+
 /*
 type Page struct {
 	Attributes struct {
