@@ -5,7 +5,8 @@
         "Preferences":{
             "Language":"en-us",
             "TemplateEngine":"",
-            "BaseUrl":"https://localhost:8080/"
+            "BaseUrl":"https://localhost:8080/",
+            "AutoRoutes":true
         }
     }
 

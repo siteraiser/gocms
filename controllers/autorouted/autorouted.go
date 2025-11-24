@@ -2,7 +2,6 @@ package autorouted
 
 import (
 	"fmt"
-	"gocms/app"
 	"net/http"
 )
 
@@ -10,10 +9,10 @@ import (
 
 func Index(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	fmt.Fprintf(w, "<div>Named Values %v\n </div>", app.NamedValues["id"])
+	fmt.Fprintf(w, "<div>autoloaded.Index </div>")
 }
 
 func Page2(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	fmt.Fprintf(w, "<div>Named Values %v\n </div>", app.NamedValues["id"])
+	fmt.Fprintf(w, "<div>autoloaded.Page2  </div>")
 }

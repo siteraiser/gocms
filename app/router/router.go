@@ -78,8 +78,8 @@ func AddFunc(controller http.HandlerFunc) {
 		before, fn, _ := strings.Cut(name, ".")
 		pkgArr := strings.Split(before, "/")
 		pkg := pkgArr[len(pkgArr)-1]
-		//fmt.Println("pkg", pkg)
-		//fmt.Println("function", fn)
+		fmt.Println("pkg", pkg)
+		fmt.Println("function", fn)
 		controllers.List[strings.ToLower(pkg+"/"+fn)] = controller
 	}
 
@@ -123,21 +123,22 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	//if still not found then check for auto-routed controllers/functions (package/function)...
 
-	if !found {
+	if !found && app.GetConfig().Settings.Preferences.AutoRoutes {
 		controller_name := ""
 		package_name := ""
 		if app.Path == "/" {
 			controller_name = "index"
-		} else if len(app.UrlSegments) == 1 {
-			controller_name = "index"
-			package_name = app.UrlSegments[0]
-		} else {
+		} else if len(app.UrlSegments) > 1 {
 			controller_name = app.UrlSegments[1]
+			package_name = app.UrlSegments[0]
+		}
+		if _, exists := controllers.List[package_name+"/"+controller_name]; !exists {
+			controller_name = "index"
 			package_name = app.UrlSegments[0]
 		}
 
 		mvcroute := package_name + "/" + controller_name
-
+		fmt.Println("mvcroute: ", mvcroute)
 		if fn, exists := controllers.List[mvcroute]; exists {
 			app.RouteType = "auto"
 			found = true

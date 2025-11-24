@@ -14,6 +14,7 @@ type Config struct {
 			Language       string `json:"Language"`
 			TemplateEngine string `json:"TemplateEngine"`
 			BaseUrl        string `json:"BaseUrl"`
+			AutoRoutes     bool   `json:"AutoRoutes"`
 		}
 	}
 }
