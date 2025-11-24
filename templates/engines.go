@@ -10,11 +10,11 @@ import (
 var Registry = []template.Engine{
 	{
 		Ext:    ".hbs",
-		Render: Handlebars{},
+		Engine: Handlebars{},
 	},
 	{
 		Ext:    ".mustache",
-		Render: Mustache{},
+		Engine: Mustache{},
 	},
 }
 

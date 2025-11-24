@@ -8,7 +8,7 @@ var V models.View
 
 type Engine struct {
 	Ext    string
-	Render Renderer
+	Engine Renderer
 }
 type Renderer interface {
 	Render(string, any) (string, error)
