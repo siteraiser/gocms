@@ -1,10 +1,11 @@
 {
 
-    "name":"My App",
-    "settings":{
-        "preferences":{
-            "language":"en-us",
-            "templateEngine":""
+    "Name":"My App",
+    "Settings":{
+        "Preferences":{
+            "Language":"en-us",
+            "TemplateEngine":"",
+            "BaseUrl":"https://localhost:8080/"
         }
     }
 

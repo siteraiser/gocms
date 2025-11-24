@@ -11,12 +11,12 @@ import (
 func Fs(root http.Dir) http.Handler {
 	fs := http.FileServer(root)
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		cleanPath := filepath.Clean(r.URL.Path)
-		fullPath := filepath.Join(string(root), cleanPath)
+		clean_path := filepath.Clean(r.URL.Path)
+		full_path := filepath.Join(string(root), clean_path)
 
-		fmt.Println("Serving file: ", fullPath)
+		fmt.Println("Serving file: ", full_path)
 
-		if _, err := os.Stat(fullPath); os.IsNotExist(err) {
+		if _, err := os.Stat(full_path); os.IsNotExist(err) {
 			fmt.Println("file not found: ", err)
 			http.NotFound(w, r)
 			return

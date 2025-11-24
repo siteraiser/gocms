@@ -21,3 +21,14 @@ type Page struct {
 	Title string
 	Body  string
 }
+
+/*
+type Page struct {
+	Attributes struct {
+		Header http.Header
+	}
+	Meta    string
+	Content string
+	Assets  map[string]string
+}
+*/

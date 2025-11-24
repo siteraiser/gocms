@@ -8,11 +8,12 @@ import (
 )
 
 type Config struct {
-	Name     string `json:"name"`
+	Name     string `json:"Name"`
 	Settings struct {
 		Preferences struct {
-			Language       string `json:"language"`
-			TemplateEngine string `json:"templateEngine"`
+			Language       string `json:"Language"`
+			TemplateEngine string `json:"TemplateEngine"`
+			BaseUrl        string `json:"BaseUrl"`
 		}
 	}
 }

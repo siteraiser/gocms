@@ -3,9 +3,12 @@ package router
 import (
 	"errors"
 	"fmt"
+	"gocms/app"
 	view "gocms/app/views"
 	"net/http"
 	"path/filepath"
+	"reflect"
+	"runtime"
 	"strings"
 )
 
@@ -36,20 +39,11 @@ var routes Routes
 var AnyParams []string
 var NamedParams map[string]string
 
-// Parameter Functions
-func AnyValues() []string {
-	return AnyParams
+type Controllers struct {
+	List map[string]http.HandlerFunc
 }
-func AnyValue(index int) string {
 
-	if len(AnyParams)-1 >= index {
-		return AnyParams[index]
-	}
-	return ""
-}
-func NamedValue(name string) string {
-	return NamedParams[name]
-}
+var controllers Controllers
 
 // Add a route
 func Add(pattern string, controller http.Handler) {
@@ -70,9 +64,44 @@ func Add(pattern string, controller http.Handler) {
 	routes.List = append(routes.List, route)
 }
 
+// Add a controller
+func AddFunc(controller http.HandlerFunc) {
+	funcValue := reflect.ValueOf(controller)
+	fmt.Println("Value of controller: ", funcValue)
+	// simple mvc routing
+	name := getName(controller)
+	fmt.Println("name of controller: ", name)
+	if controllers.List == nil {
+		controllers.List = make(map[string]http.HandlerFunc)
+	}
+	if name != "" {
+		before, fn, _ := strings.Cut(name, ".")
+		pkgArr := strings.Split(before, "/")
+		pkg := pkgArr[len(pkgArr)-1]
+		//fmt.Println("pkg", pkg)
+		//fmt.Println("function", fn)
+		controllers.List[strings.ToLower(pkg+"/"+fn)] = controller
+	}
+
+}
+
+func getName(myvar interface{}) string {
+
+	return runtime.FuncForPC(reflect.ValueOf(myvar).Pointer()).Name()
+
+}
+
 type Handler struct{}
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	app.BaseUrl = app.GetConfig().Settings.Preferences.BaseUrl
+	app.Path = r.URL.Path
+	if app.Path != "/" {
+		app.Path = strings.TrimLeft(app.Path, "/")
+	}
+	app.UrlSegments = strings.Split(app.Path, "/")
+	app.Request = r
+
 	//Capture the output and send it but clear the output on the way out
 	flusher, ok := w.(http.Flusher)
 	if !ok {
@@ -87,18 +116,44 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//No manual checks matched the request URL, now try router
-	path := r.URL.Path
-	if path != "/" {
-		path = strings.TrimLeft(path, "/")
+
+	route, anyParams, namedParams, found := routeIt(app.Path, r.Method)
+	app.AnyValues = anyParams
+	app.NamedValues = namedParams
+
+	//if still not found then check for auto-routed controllers/functions (package/function)...
+
+	if !found {
+		controller_name := ""
+		package_name := ""
+		if app.Path == "/" {
+			controller_name = "index"
+		} else if len(app.UrlSegments) == 1 {
+			controller_name = "index"
+			package_name = app.UrlSegments[0]
+		} else {
+			controller_name = app.UrlSegments[1]
+			package_name = app.UrlSegments[0]
+		}
+
+		mvcroute := package_name + "/" + controller_name
+
+		if fn, exists := controllers.List[mvcroute]; exists {
+			app.RouteType = "auto"
+			found = true
+			fn(w, r)
+		} else {
+			fmt.Println("Package not found", controller_name)
+		}
+
 	}
-	route, anyParams, namedParams, found := routeIt(path, r.Method)
-	AnyParams = anyParams
-	NamedParams = namedParams
 
 	if found {
-		fmt.Println("Served from router: ", path)
+		fmt.Println("Served from "+app.RouteType+"router: ", app.Path)
 		fmt.Println("route: ", route)
-		route.Controller.ServeHTTP(w, r)
+		if app.RouteType != "auto" {
+			route.Controller.ServeHTTP(w, r)
+		}
 
 		//If combining content from multiple views, flush after serving
 		flusher.Flush()
@@ -108,7 +163,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}()
 		return
 	}
-	fmt.Println("Not found with router: ", path)
+	fmt.Println("Not found with router: ", app.Path)
 	fmt.Println("route: ", route)
 	w.WriteHeader(http.StatusNotFound)
 	w.Write([]byte("Custom 404: Page not found"))
@@ -221,6 +276,7 @@ func routeIt(path string, method string) (Route, []string, map[string]string, bo
 			//Step through the pattern and the path simultaneously to look for matches
 			anyParams, namedParams, found = match(pattern, url_segs[:p_len])
 		}
+
 		if found {
 			break
 		}
@@ -235,5 +291,6 @@ func routeIt(path string, method string) (Route, []string, map[string]string, bo
 	if len(namedParams) > 0 {
 		named = namedParams
 	}
+
 	return route, anys, named, found
 }
