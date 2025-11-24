@@ -124,8 +124,9 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if !found && app.GetConfig().Settings.Preferences.AutoRoutes {
 		var hfn http.HandlerFunc
-		hfn, routeType, found = autoRouteIt(routeType)
+		hfn, found = autoRouteIt()
 		if found {
+			routeType = "auto"
 			hfn.ServeHTTP(w, r)
 		}
 	}
@@ -277,7 +278,7 @@ func routeIt(path string, method string) (Route, []string, map[string]string, bo
 	return route, anys, named, found
 }
 
-func autoRouteIt(routeType string) (http.HandlerFunc, string, bool) {
+func autoRouteIt() (http.HandlerFunc, bool) {
 	//found := false
 	controller_name := ""
 	package_name := ""
@@ -299,10 +300,10 @@ func autoRouteIt(routeType string) (http.HandlerFunc, string, bool) {
 	fmt.Println("mvcroute: ", mvcroute)
 	if fn, exists := controllers.List[mvcroute]; exists {
 
-		return fn, "auto", true
+		return fn, true
 	} else {
 		fmt.Println("Package not found", controller_name)
 	}
 	//return found
-	return nil, "", false
+	return nil, false
 }
