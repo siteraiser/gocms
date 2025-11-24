@@ -21,17 +21,13 @@ var Registry = []template.Engine{
 type Mustache struct{}
 
 func (h Mustache) Render(s string, a any) (string, error) {
-	return template.RenderView(h, s, a, func(s string, a any) (string, error) {
-		results, err := mustache.Render(s, a)
-		return results, err
-	})
+	results, err := mustache.Render(s, a)
+	return results, err
 }
 
 type Handlebars struct{}
 
 func (h Handlebars) Render(s string, a any) (string, error) {
-	return template.RenderView(h, s, a, func(s string, a any) (string, error) {
-		results, err := handlebars.Render(s, a)
-		return results, err
-	})
+	results, err := handlebars.Render(s, a)
+	return results, err
 }
