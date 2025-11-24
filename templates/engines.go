@@ -2,8 +2,9 @@ package templates
 
 import (
 	template "gocms/app/templates"
-	"gocms/templates/engines/handlebars"
-	"gocms/templates/engines/mustache"
+
+	"github.com/cbroglie/mustache"
+	"github.com/flowchartsman/handlebars/v3"
 )
 
 // Filled in by user...
