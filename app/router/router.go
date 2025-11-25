@@ -94,13 +94,12 @@ type Handler struct{}
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	app.Mutex.Lock()
-	app.Path = r.URL.Path
-	if app.Path != "/" {
-		app.Path = strings.TrimLeft(app.Path, "/")
+	path := r.URL.Path
+	if path != "/" {
+		path = strings.TrimLeft(path, "/")
 	}
-	app.UrlSegments = strings.Split(app.Path, "/")
-	app.Request = r
+	urlsegs := strings.Split(path, "/")
+	//app.Request = r
 
 	//Capture the output and send it but clear the output on the way out
 	flusher, ok := w.(http.Flusher)
@@ -119,30 +118,37 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	//No manual checks matched the request URL, now try router
 	var route Route
+	var anyvalues []string
+	var namedvalues map[string]string
 	if !found {
-		route, app.AnyValues, app.NamedValues, found = routeIt(app.Path, r.Method)
+		route, anyvalues, namedvalues, found = routeIt(path, r.Method)
 		if found {
 			routeType = "secondary"
 		}
 	}
 
 	//if still not found then check for auto-routed controllers/functions (package/function)...
-
+	var hfn http.HandlerFunc
 	if !found && app.Config.Settings.Preferences.AutoRoutes {
-		var hfn http.HandlerFunc
-		hfn, found = autoRouteIt()
+		hfn, found = autoRouteIt(path, urlsegs)
 		if found {
 			routeType = "auto"
-			hfn.ServeHTTP(w, r)
 		}
 	}
 
 	if found {
 		fmt.Println("Served from "+routeType+" router: ", app.Path)
 		fmt.Println("route: ", route)
+		app.Mutex.Lock()
+		app.AnyValues = anyvalues
+		app.NamedValues = namedvalues
 		if routeType == "secondary" {
 			route.Controller.ServeHTTP(w, r)
 		}
+		if routeType == "auto" {
+			hfn.ServeHTTP(w, r)
+		}
+		app.Mutex.Unlock()
 
 		//If combining content from multiple views, flush after serving
 		flusher.Flush()
@@ -150,18 +156,18 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// Do background work without blocking the client
 		go func() {
 			app.ClearOutput()
-			app.Mutex.Unlock()
+
 		}()
 		return
 	}
 
-	fmt.Println("Not found with router: ", app.Path)
+	fmt.Println("Not found with router: ", path)
 	fmt.Println("route: ", route)
 
 	w.WriteHeader(http.StatusNotFound)
 	w.Write([]byte("Custom 404: Page not found"))
 	flusher.Flush()
-	app.Mutex.Unlock()
+
 }
 
 func GetPage(w http.ResponseWriter, r *http.Request) error {
@@ -290,19 +296,19 @@ func routeIt(path string, method string) (Route, []string, map[string]string, bo
 	return route, anys, named, found
 }
 
-func autoRouteIt() (http.HandlerFunc, bool) {
+func autoRouteIt(path string, urlsegs []string) (http.HandlerFunc, bool) {
 	//found := false
 	controller_name := ""
 	package_name := ""
-	if app.Path == "/" {
+	if path == "/" {
 		controller_name = "index"
-	} else if len(app.UrlSegments) > 1 {
-		controller_name = app.UrlSegments[1]
-		package_name = app.UrlSegments[0]
+	} else if len(urlsegs) > 1 {
+		controller_name = urlsegs[1]
+		package_name = urlsegs[0]
 	}
 	if _, exists := controllers.List[package_name+"/"+controller_name]; !exists {
 		controller_name = "index"
-		package_name = app.UrlSegments[0]
+		package_name = urlsegs[0]
 	}
 	if _, exists := controllers.List[package_name+"/"+controller_name]; !exists {
 		controller_name = "index"
