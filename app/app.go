@@ -33,27 +33,29 @@ var NamedValues = map[string]string{}
 
 var v = models.View{}
 
-func AddView(location string, args any) (string, error) {
+func AddView(location string, args any) string {
+	out := ""
 	//no reason to choose engine for now with: app.GetConfig()...
 	data, err := os.ReadFile("./views/" + location)
 	if err != nil {
 		fmt.Println("Error:", err)
-		return "", err
+		return ""
 	}
 	err = nil
 	//Find the rendering engine in the registry (outside of app folder) and render
 	for _, e := range templates.Registry {
 		if e.Ext == filepath.Ext(location) {
-			v.Output, err = e.Engine.Render(string(data), args)
+			out, err = e.Engine.Render(string(data), args)
+			v.Output = out
 			if err != nil {
 				fmt.Println("Error:", err)
-				return "", err
+				return ""
 			}
 		}
 	}
 
 	//add more types of rendering here...
-	return v.Output, nil
+	return out
 }
 
 func GetView() models.View {

@@ -21,10 +21,15 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	index, _ := app.AddView("index.mustache", ctx)
-	app.ClearOutput()
-
-	app.AddView("layouts/main.mustache", map[string]string{"embed": index})
+	app.AddView(
+		"layouts/main.mustache",
+		map[string]string{
+			"embed": app.AddView(
+				"index.mustache",
+				ctx,
+			),
+		},
+	)
 
 	fmt.Fprintf(w, "%v", app.GetOutput())
 }
