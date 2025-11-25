@@ -135,9 +135,10 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if found {
-		fmt.Println("Served from "+routeType+" router: ", app.Path)
+		fmt.Println("Served from "+routeType+" router: ", path)
 		fmt.Println("route: ", route)
 		app.Mutex.Lock()
+		app.Path = path
 		app.AnyValues = anyvalues
 		app.NamedValues = namedvalues
 		if routeType == "secondary" {
