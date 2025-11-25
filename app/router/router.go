@@ -35,8 +35,6 @@ type Routes struct {
 }
 
 var routes Routes
-var AnyParams []string
-var NamedParams map[string]string
 
 type Controllers struct {
 	List map[string]http.HandlerFunc
