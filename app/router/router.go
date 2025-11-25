@@ -111,6 +111,8 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	app.Mutex.Lock()
 	app.Path = path
 	app.UrlSegments = urlsegs
+	app.AnyValues = []string{}
+	app.NamedValues = map[string]string{}
 	err := GetPage(w, r)
 	app.Mutex.Unlock()
 	if err == nil {
