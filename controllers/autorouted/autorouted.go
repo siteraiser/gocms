@@ -23,7 +23,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	app.AddView(
 		"layouts/main.mustache",
 		map[string]string{
-			"Lang":  app.GetConfig().Settings.Preferences.Language,
+			"Lang":  app.Config.Settings.Preferences.Language,
 			"Title": title,
 			"embed": app.AddView(
 				"index.mustache",

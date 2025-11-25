@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-type Config struct {
+type Configuration struct {
 	Name     string `json:"Name"`
 	Settings struct {
 		Preferences struct {
@@ -19,7 +19,9 @@ type Config struct {
 	}
 }
 
-func GetConfig() Config {
+var Config = GetConfig()
+
+func GetConfig() Configuration {
 	jsonFile, err := os.Open("./config.json")
 	if err != nil {
 		fmt.Println(err)
@@ -30,7 +32,7 @@ func GetConfig() Config {
 	byteValue, _ := io.ReadAll(jsonFile)
 
 	// Unmarshal the JSON data
-	var config Config
+	var config Configuration
 	err = json.Unmarshal(byteValue, &config)
 	if err != nil {
 		panic(err)

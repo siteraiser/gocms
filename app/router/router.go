@@ -94,7 +94,7 @@ type Handler struct{}
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	app.BaseUrl = app.GetConfig().Settings.Preferences.BaseUrl
+	app.BaseUrl = app.Config.Settings.Preferences.BaseUrl
 	app.Mutex.Lock()
 	app.Path = r.URL.Path
 	if app.Path != "/" {
@@ -129,7 +129,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	//if still not found then check for auto-routed controllers/functions (package/function)...
 
-	if !found && app.GetConfig().Settings.Preferences.AutoRoutes {
+	if !found && app.Config.Settings.Preferences.AutoRoutes {
 		var hfn http.HandlerFunc
 		hfn, found = autoRouteIt()
 		if found {
