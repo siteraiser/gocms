@@ -108,13 +108,16 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	routeType := ""
 	found := false
 	//check for other resources that aren't using the default routing here
+	app.Mutex.Lock()
+	app.Path = path
 	err := GetPage(w, r)
+	app.Mutex.Unlock()
 	if err == nil {
 		routeType = "primary"
 		found = true
 	}
 
-	//No manual checks matched the request URL, now try router
+	//No manual checks matched the request URL using the primary router, now try secondary router
 	var route Route
 	var anyvalues []string
 	var namedvalues map[string]string
