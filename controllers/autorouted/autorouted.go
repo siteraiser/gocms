@@ -10,10 +10,9 @@ import (
 
 func Index(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-
+	title := "Another Title"
 	ctx := map[string]any{
-		"Lang":  app.GetConfig().Settings.Preferences.Language,
-		"Title": "Another",
+		"Title": title,
 		"Linklist": []map[string]interface{}{
 			{"Text": "Home", "Link": "/"},
 			{"Text": "Random", "Link": "/random"},
@@ -24,6 +23,8 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	app.AddView(
 		"layouts/main.mustache",
 		map[string]string{
+			"Lang":  app.GetConfig().Settings.Preferences.Language,
+			"Title": title,
 			"embed": app.AddView(
 				"index.mustache",
 				ctx,
