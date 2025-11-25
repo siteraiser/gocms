@@ -93,7 +93,9 @@ func getName(myvar interface{}) string {
 type Handler struct{}
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
 	app.BaseUrl = app.GetConfig().Settings.Preferences.BaseUrl
+	app.Mutex.Lock()
 	app.Path = r.URL.Path
 	if app.Path != "/" {
 		app.Path = strings.TrimLeft(app.Path, "/")
@@ -107,18 +109,23 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Streaming unsupported!", http.StatusInternalServerError)
 		return
 	}
-
+	routeType := ""
+	found := false
 	//check for other resources that aren't using the default routing here
 	err := GetPage(w, r)
 	if err == nil {
-		return
+		routeType = "primary"
+		found = true
 	}
 
 	//No manual checks matched the request URL, now try router
-	var routeType = ""
-	route, anyParams, namedParams, found := routeIt(app.Path, r.Method)
-	app.AnyValues = anyParams
-	app.NamedValues = namedParams
+	var route Route
+	if !found {
+		route, app.AnyValues, app.NamedValues, found = routeIt(app.Path, r.Method)
+		if found {
+			routeType = "secondary"
+		}
+	}
 
 	//if still not found then check for auto-routed controllers/functions (package/function)...
 
@@ -132,24 +139,30 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if found {
-		fmt.Println("Served from "+routeType+"router: ", app.Path)
+		fmt.Println("Served from "+routeType+" router: ", app.Path)
 		fmt.Println("route: ", route)
-		if routeType != "auto" {
+		if routeType == "secondary" {
 			route.Controller.ServeHTTP(w, r)
 		}
 
 		//If combining content from multiple views, flush after serving
 		flusher.Flush()
+
 		// Do background work without blocking the client
 		go func() {
 			app.ClearOutput()
+			app.Mutex.Unlock()
 		}()
 		return
 	}
+
 	fmt.Println("Not found with router: ", app.Path)
 	fmt.Println("route: ", route)
+
 	w.WriteHeader(http.StatusNotFound)
 	w.Write([]byte("Custom 404: Page not found"))
+	flusher.Flush()
+	app.Mutex.Unlock()
 }
 
 func GetPage(w http.ResponseWriter, r *http.Request) error {

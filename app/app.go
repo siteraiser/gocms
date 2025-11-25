@@ -7,7 +7,10 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sync"
 )
+
+var Mutex sync.Mutex
 
 // add routing from routing package to app
 type Routing struct {
