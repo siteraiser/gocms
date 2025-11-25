@@ -94,7 +94,6 @@ type Handler struct{}
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	app.BaseUrl = app.Config.Settings.Preferences.BaseUrl
 	app.Mutex.Lock()
 	app.Path = r.URL.Path
 	if app.Path != "/" {
