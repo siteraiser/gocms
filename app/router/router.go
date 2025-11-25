@@ -110,6 +110,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	//check for other resources that aren't using the default routing here
 	app.Mutex.Lock()
 	app.Path = path
+	app.UrlSegments = urlsegs
 	err := GetPage(w, r)
 	app.Mutex.Unlock()
 	if err == nil {
