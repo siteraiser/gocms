@@ -28,7 +28,7 @@ func NewApp(ah http.Handler) {
 var BaseUrl = ""             // Is set during the installation in config. Should always contain a trailing slash.
 var Path = ""                // Contains full current path.
 var UrlSegments = []string{} // Contains the url segements for the current page. Access the first part of the path using app.url_segments[0].
-var Request *http.Request
+// var Request *http.Request
 var AnyValues = []string{}
 var NamedValues = map[string]string{}
 
