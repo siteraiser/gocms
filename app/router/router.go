@@ -183,7 +183,7 @@ func GetPage(w http.ResponseWriter, r *http.Request) error {
 		err := errors.New("Something went wrong")
 		return err
 	}
-	fmt.Println("Served from primary routes: ", r.URL.Path)
+	//	fmt.Println("Served from primary routes: ", r.URL.Path)
 	return nil
 
 }
