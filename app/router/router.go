@@ -105,7 +105,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Streaming unsupported!", http.StatusInternalServerError)
 		return
 	}
-	routeType := ""
+	routetype := ""
 	found := false
 	//check for other resources that aren't using the default routing here
 	app.Mutex.Lock()
@@ -116,7 +116,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	err := GetPage(w, r)
 	app.Mutex.Unlock()
 	if err == nil {
-		routeType = "primary"
+		routetype = "primary"
 		found = true
 	}
 
@@ -127,7 +127,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if !found {
 		route, anyvalues, namedvalues, found = routeIt(path, r.Method)
 		if found {
-			routeType = "secondary"
+			routetype = "secondary"
 		}
 	}
 
@@ -136,21 +136,21 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if !found && app.Config.Settings.Preferences.AutoRoutes {
 		hfn, found = autoRouteIt(path, urlsegs)
 		if found {
-			routeType = "auto"
+			routetype = "auto"
 		}
 	}
 
 	if found {
-		fmt.Println("Served from "+routeType+" router: ", path)
+		fmt.Println("Served from "+routetype+" router: ", path)
 		fmt.Println("route: ", route)
 		app.Mutex.Lock()
 		app.Path = path
 		app.AnyValues = anyvalues
 		app.NamedValues = namedvalues
-		if routeType == "secondary" {
+		if routetype == "secondary" {
 			route.Controller.ServeHTTP(w, r)
 		}
-		if routeType == "auto" {
+		if routetype == "auto" {
 			hfn.ServeHTTP(w, r)
 		}
 		app.Mutex.Unlock()
