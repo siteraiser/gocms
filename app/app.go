@@ -61,7 +61,7 @@ func AddView(w http.ResponseWriter, location string, args any) string {
 		if e.Ext == filepath.Ext(location) {
 			out, err = e.Engine.Render(string(data), args)
 
-			Requests[w.Header().Get("X-Request-Id")].View.Output = out
+			Requests[GetId(w)].View.Output = out
 
 			if err != nil {
 				fmt.Println("Error:", err)
