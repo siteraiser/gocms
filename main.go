@@ -1,18 +1,20 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"gocms/app"
 	"gocms/app/router"
 	"net"
 	"net/http"
+	"strconv"
 )
 
 func main() {
 
-	//portFlag := flag.Int("port", 8080, "string")
-	//flag.Parse()
-	port := "8080" //strconv.Itoa(*portFlag)
+	portFlag := flag.Int("port", 8080, "string")
+	flag.Parse()
+	port := strconv.Itoa(*portFlag)
 	listener, err := net.Listen("tcp", ":"+port)
 	if err != nil {
 		panic(err)
