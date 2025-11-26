@@ -23,13 +23,13 @@ func Index(welcome_message string) http.Handler {
 			},
 		}
 
-		home := app.AddView(w, "home.hbs", ctx)
+		home := app.AddView("home.hbs", ctx)
 		ctx2 := models.Page{
 			Lang:  app.Config.Settings.Preferences.Language,
 			Title: string(welcome_message),
 			Body:  home + "<a href='/test'>Test page</a><br><a href='/another/value1/and/value2'>Any Vars Test page</a><br><a href='/another/value1/link'>Named Vars Test page</a><br><a href='/autorouted'>Auto-routed page</a>",
 		}
-		fmt.Fprintf(w, "%v", app.AddView(w, "document.hbs", ctx2))
+		fmt.Fprintf(w, "%v", app.AddView("document.hbs", ctx2))
 	})
 }
 

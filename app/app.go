@@ -47,7 +47,7 @@ var Requests = make(map[string]*Request)
 
 var BaseUrl = ""
 
-func AddView(w http.ResponseWriter, location string, args any) string {
+func AddView(location string, args any) string {
 	out := ""
 	//no reason to choose engine for now with: app.GetConfig()...
 	data, err := os.ReadFile("./views/" + location)
@@ -61,7 +61,7 @@ func AddView(w http.ResponseWriter, location string, args any) string {
 		if e.Ext == filepath.Ext(location) {
 			out, err = e.Engine.Render(string(data), args)
 
-			Requests[GetId(w)].View.Output = out
+			//	Requests[GetId(w)].View.Output = out
 
 			if err != nil {
 				fmt.Println("Error:", err)

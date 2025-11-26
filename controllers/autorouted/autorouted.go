@@ -14,7 +14,6 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	title := "Another Title"
 
 	embed := app.AddView(
-		w,
 		"index.mustache",
 		map[string]any{
 			"Title": title,
@@ -26,8 +25,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		},
 	)
 
-	app.AddView(
-		w,
+	page := app.AddView(
 		"layouts/main.mustache",
 		map[string]string{
 			"Lang":  app.Config.Settings.Preferences.Language,
@@ -37,7 +35,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	)
 
 	time.Sleep(time.Second * 5)
-	fmt.Fprintf(w, "%v", app.GetOutput(w))
+	fmt.Fprintf(w, "%v", page)
 }
 
 func Page2(w http.ResponseWriter, r *http.Request) {
