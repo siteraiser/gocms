@@ -196,11 +196,12 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Served from %v router:  %v in %v\n", routetype, path, time.Since(start))
 		fmt.Println("route: ", route)
 		//If combining content from multiple views, flush after serving
-		flusher.Flush()
 
+		flusher.Flush()
+		//	fmt.Println(w.Header().Get("Body"))
 		// Do background work without blocking the client
 		go func() {
-			app.ClearOutput(requestid)
+			//	app.ClearOutput(requestid)
 
 		}()
 		return

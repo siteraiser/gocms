@@ -52,7 +52,7 @@ func RandoHandler() http.Handler {
 func OtherHandler(arguments string) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		fmt.Fprintf(w, "<div>Named Values %v\n </div>", app.Requests[app.GetId(w)].NamedValues["id"])
+		fmt.Fprintf(w, "<div>Named Values %v\n </div>", app.NamedValues(w)["id"])
 	}
 	return http.HandlerFunc(fn)
 }
@@ -60,7 +60,7 @@ func OtherHandler(arguments string) http.Handler {
 func TestPageHandler(arguments string) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		fmt.Fprintf(w, "<div>Any value 0: %v\n </div><br><a href='"+app.BaseUrl+"autorouted'>Go to autorouted page</a>", app.Requests[app.GetId(w)].AnyValues[0])
+		fmt.Fprintf(w, "<div>Any value 0: %v\n </div><br><a href='"+app.BaseUrl+"autorouted'>Go to autorouted page</a>", app.AnyValues(w)[0])
 	}
 	return http.HandlerFunc(fn)
 }

@@ -24,7 +24,6 @@ type Request struct {
 	UrlSegments []string
 	AnyValues   []string
 	NamedValues map[string]string
-	Status      string
 }
 
 var Mutex sync.Mutex
@@ -46,6 +45,20 @@ func NewApp(ah http.Handler) {
 var Requests = make(map[string]*Request)
 
 var BaseUrl = ""
+
+func GetId(w http.ResponseWriter) string {
+	return w.Header().Get("X-Request-Id")
+}
+
+func UrlSegments(w http.ResponseWriter) []string {
+	return Requests[GetId(w)].UrlSegments
+}
+func AnyValues(w http.ResponseWriter) []string {
+	return Requests[GetId(w)].AnyValues
+}
+func NamedValues(w http.ResponseWriter) map[string]string {
+	return Requests[GetId(w)].NamedValues
+}
 
 func AddView(location string, args any) string {
 	out := ""
@@ -74,22 +87,28 @@ func AddView(location string, args any) string {
 	return out
 }
 
-func GetView() models.View {
-	return Requests["0"].View
-}
-func ClearOutput(id string) {
-	Requests[string(id)].View.Output = ""
-}
+/*
+	func GetView() models.View {
+		return Requests["0"].View
+	}
 
-func GetOutput(w http.ResponseWriter) string {
-	return Requests[GetId(w)].View.Output
-}
+	func ClearOutput(id string) {
+		Requests[string(id)].View.Output = ""
+	}
 
-func GetId(w http.ResponseWriter) string {
-	return w.Header().Get("X-Request-Id")
-}
+	func GetOutput(w http.ResponseWriter) string {
+		return Requests[GetId(w)].View.Output
+	}
+*/
 
 /*
+func NamedValues(w http.ResponseWriter) map[string]string {
+	return Requests[GetId(w)].NamedValues
+}
+
+
+
+
 // Parameter Functions
 func AnyValues() []string {
 	return AnyParams
