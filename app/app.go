@@ -47,9 +47,6 @@ var Requests = make(map[string]*Request)
 
 var BaseUrl = ""
 
-// voutputs["lol"] = "string"
-//var wg *sync.WaitGroup
-
 func AddView(w http.ResponseWriter, location string, args any) string {
 	out := ""
 	//no reason to choose engine for now with: app.GetConfig()...
@@ -63,8 +60,6 @@ func AddView(w http.ResponseWriter, location string, args any) string {
 	for _, e := range templates.Registry {
 		if e.Ext == filepath.Ext(location) {
 			out, err = e.Engine.Render(string(data), args)
-			//head :=
-			//fmt.Println(r)
 
 			Requests[w.Header().Get("X-Request-Id")].View.Output = out
 
