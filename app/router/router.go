@@ -92,10 +92,6 @@ func getName(myvar interface{}) string {
 
 }
 
-type key string
-
-const requestIDKey key = "requestID"
-
 type Handler struct{}
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -105,7 +101,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		requestid = uuid.New().String()
 	}
 
-	ctx := context.WithValue(r.Context(), requestIDKey, requestid)
+	ctx := context.WithValue(r.Context(), app.RequestIDKey, requestid)
 	w.Header().Set("X-Request-Id", requestid)
 
 	req := app.Request{
