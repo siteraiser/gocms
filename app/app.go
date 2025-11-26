@@ -82,7 +82,7 @@ func ClearOutput(id string) {
 }
 
 func GetOutput(w http.ResponseWriter) string {
-	return Requests[w.Header().Get("X-Request-Id")].View.Output
+	return Requests[GetId(w)].View.Output
 }
 
 func GetId(w http.ResponseWriter) string {
