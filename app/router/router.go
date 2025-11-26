@@ -1,7 +1,6 @@
 package router
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"gocms/app"
@@ -102,7 +101,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		requestid = uuid.New().String()
 	}
 
-	ctx := context.WithValue(r.Context(), app.RequestIDKey, requestid)
+	//ctx := context.WithValue(r.Context(), app.RequestIDKey, requestid)
 	w.Header().Set("X-Request-Id", requestid)
 
 	req := app.Request{
@@ -135,7 +134,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	req.UrlSegments = urlsegs
 	req.AnyValues = []string{}
 	req.NamedValues = map[string]string{}
-	err := GetPage(w, r.WithContext(ctx))
+	err := GetPage(w, r)
 	//	app.Mutex.Unlock()
 	if err == nil {
 		routetype = "primary"
@@ -187,9 +186,9 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			if req.Id == requestid {
 				switch req.RouteType {
 				case "secondary":
-					req.Handler.ServeHTTP(w, r.WithContext(ctx))
+					req.Handler.ServeHTTP(w, r)
 				case "auto":
-					req.HandlerFunc.ServeHTTP(w, r.WithContext(ctx))
+					req.HandlerFunc.ServeHTTP(w, r)
 				}
 			}
 		}
