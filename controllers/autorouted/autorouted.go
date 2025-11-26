@@ -10,8 +10,6 @@ import (
 // auto-routed pages require this structure
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	head := r.Context()
-	fmt.Println(head.Value(app.RequestIDKey))
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	title := "Another Title"
 	ctx := map[string]any{

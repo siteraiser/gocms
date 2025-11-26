@@ -11,6 +11,7 @@ import (
 	"reflect"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -95,7 +96,7 @@ func getName(myvar interface{}) string {
 type Handler struct{}
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	//requestid := rand.Intn(1000)
+	start := time.Now()
 	requestid := r.Header.Get("X-Request-Id")
 	if requestid == "" {
 		requestid = uuid.New().String()
@@ -162,8 +163,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if found {
-		fmt.Println("Served from "+routetype+" router: ", path)
-		fmt.Println("route: ", route)
+
 		//	app.Mutex.Lock()
 		//	defer app.Mutex.Unlock()
 		//
@@ -193,7 +193,8 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		}
-
+		fmt.Printf("Served from %v router:  %v in %v\n", routetype, path, time.Since(start))
+		fmt.Println("route: ", route)
 		//If combining content from multiple views, flush after serving
 		flusher.Flush()
 

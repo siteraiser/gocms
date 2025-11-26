@@ -52,7 +52,7 @@ func RandoHandler() http.Handler {
 func OtherHandler(arguments string) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		fmt.Fprintf(w, "<div>Named Values %v\n </div>", app.Requests[w.Header().Get("X-Request-Id")].NamedValues["id"])
+		fmt.Fprintf(w, "<div>Named Values %v\n </div>", app.Requests[app.GetId(w)].NamedValues["id"])
 	}
 	return http.HandlerFunc(fn)
 }
@@ -60,7 +60,7 @@ func OtherHandler(arguments string) http.Handler {
 func TestPageHandler(arguments string) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		fmt.Fprintf(w, "<div>Any value 0: %v\n </div><br><a href='"+app.BaseUrl+"autorouted'>Go to autorouted page</a>", app.Requests[w.Header().Get("X-Request-Id")].AnyValues[0])
+		fmt.Fprintf(w, "<div>Any value 0: %v\n </div><br><a href='"+app.BaseUrl+"autorouted'>Go to autorouted page</a>", app.Requests[app.GetId(w)].AnyValues[0])
 	}
 	return http.HandlerFunc(fn)
 }
@@ -69,7 +69,7 @@ func TestHandler() http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		output := ""
-		for _, value := range app.Requests[w.Header().Get("X-Request-Id")].AnyValues {
+		for _, value := range app.Requests[app.GetId(w)].AnyValues {
 			output += value
 		}
 		fmt.Fprintf(w, "<div>All any values %v\n </div>", output)

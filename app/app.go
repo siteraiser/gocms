@@ -85,6 +85,10 @@ func GetOutput(w http.ResponseWriter) string {
 	return Requests[w.Header().Get("X-Request-Id")].View.Output
 }
 
+func GetId(w http.ResponseWriter) string {
+	return w.Header().Get("X-Request-Id")
+}
+
 /*
 // Parameter Functions
 func AnyValues() []string {
