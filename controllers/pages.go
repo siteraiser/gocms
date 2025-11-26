@@ -56,7 +56,6 @@ func OtherHandler(arguments string) http.Handler {
 	}
 	return http.HandlerFunc(fn)
 }
-
 func TestPageHandler(arguments string) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
