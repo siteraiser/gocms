@@ -1,18 +1,22 @@
 package router
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"gocms/app"
+	"gocms/app/models"
 	"net/http"
 	"path/filepath"
 	"reflect"
 	"runtime"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 /*
-	type Response struct {
+	type Request struct {
 		Page Page
 	}
 
@@ -63,8 +67,8 @@ func Add(pattern string, controller http.Handler) {
 
 // Add a controller
 func AddFunc(controller http.HandlerFunc) {
-	funcValue := reflect.ValueOf(controller)
-	fmt.Println("Value of controller: ", funcValue)
+	//	funcValue := reflect.ValueOf(controller)
+	//fmt.Println("Value of controller: ", funcValue)
 	// simple mvc routing
 	name := getName(controller)
 	fmt.Println("name of controller: ", name)
@@ -75,8 +79,8 @@ func AddFunc(controller http.HandlerFunc) {
 		before, fn, _ := strings.Cut(name, ".")
 		pkgArr := strings.Split(before, "/")
 		pkg := pkgArr[len(pkgArr)-1]
-		fmt.Println("pkg", pkg)
-		fmt.Println("function", fn)
+		//	fmt.Println("pkg", pkg)
+		//	fmt.Println("function", fn)
 		controllers.List[strings.ToLower(pkg+"/"+fn)] = controller
 	}
 
@@ -88,9 +92,30 @@ func getName(myvar interface{}) string {
 
 }
 
+type key string
+
+const requestIDKey key = "requestID"
+
 type Handler struct{}
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	//requestid := rand.Intn(1000)
+	requestid := r.Header.Get("X-Request-Id")
+	if requestid == "" {
+		requestid = uuid.New().String()
+	}
+
+	ctx := context.WithValue(r.Context(), requestIDKey, requestid)
+	w.Header().Set("X-Request-Id", requestid)
+
+	req := app.Request{
+		Id:      requestid,
+		Handler: h,
+		Path:    r.URL.Path,
+	}
+	app.Mutex.Lock()
+	app.Requests[requestid] = &req
+	app.Mutex.Unlock()
 
 	path := r.URL.Path
 	if path != "/" {
@@ -108,13 +133,13 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	routetype := ""
 	found := false
 	//check for other resources that aren't using the default routing here
-	app.Mutex.Lock()
-	app.Path = path
-	app.UrlSegments = urlsegs
-	app.AnyValues = []string{}
-	app.NamedValues = map[string]string{}
-	err := GetPage(w, r)
-	app.Mutex.Unlock()
+	//	app.Mutex.Lock()
+	req.Path = path
+	req.UrlSegments = urlsegs
+	req.AnyValues = []string{}
+	req.NamedValues = map[string]string{}
+	err := GetPage(w, r.WithContext(ctx))
+	//	app.Mutex.Unlock()
 	if err == nil {
 		routetype = "primary"
 		found = true
@@ -143,24 +168,42 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if found {
 		fmt.Println("Served from "+routetype+" router: ", path)
 		fmt.Println("route: ", route)
+		//	app.Mutex.Lock()
+		//	defer app.Mutex.Unlock()
+		//
 		app.Mutex.Lock()
-		app.Path = path
-		app.AnyValues = anyvalues
-		app.NamedValues = namedvalues
+		app.Requests[requestid].Path = path
+		app.Requests[requestid].AnyValues = anyvalues
+		app.Requests[requestid].NamedValues = namedvalues
+		app.Requests[requestid].RouteType = routetype
+		app.Requests[requestid].View = models.View{RequestId: requestid}
+		//app.NamedValues = namedvalues
+
 		if routetype == "secondary" {
-			route.Controller.ServeHTTP(w, r)
+			app.Requests[requestid].Handler = route.Controller
+
 		}
 		if routetype == "auto" {
-			hfn.ServeHTTP(w, r)
+			app.Requests[requestid].HandlerFunc = hfn
 		}
 		app.Mutex.Unlock()
+		for _, req := range app.Requests {
+			if req.Id == requestid {
+				switch req.RouteType {
+				case "secondary":
+					req.Handler.ServeHTTP(w, r.WithContext(ctx))
+				case "auto":
+					req.HandlerFunc.ServeHTTP(w, r.WithContext(ctx))
+				}
+			}
+		}
 
 		//If combining content from multiple views, flush after serving
 		flusher.Flush()
 
 		// Do background work without blocking the client
 		go func() {
-			app.ClearOutput()
+			app.ClearOutput(requestid)
 
 		}()
 		return
@@ -297,7 +340,6 @@ func routeIt(path string, method string) (Route, []string, map[string]string, bo
 	if len(namedParams) > 0 {
 		named = namedParams
 	}
-
 	return route, anys, named, found
 }
 

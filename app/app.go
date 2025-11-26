@@ -10,6 +10,23 @@ import (
 	"sync"
 )
 
+type key string
+
+const RequestIDKey key = "requestID"
+
+type Request struct {
+	Id          string
+	View        models.View
+	RouteType   string
+	Handler     http.Handler
+	HandlerFunc http.HandlerFunc
+	Path        string
+	UrlSegments []string
+	AnyValues   []string
+	NamedValues map[string]string
+	Status      string
+}
+
 var Mutex sync.Mutex
 
 // add routing from routing package to app
@@ -25,18 +42,15 @@ func NewApp(ah http.Handler) {
 	}
 }
 
-var BaseUrl = ""             // Is set during the installation in config. Should always contain a trailing slash.
-var Path = ""                // Contains full current path.
-var UrlSegments = []string{} // Contains the url segements for the current page. Access the first part of the path using app.url_segments[0].
-// var Request *http.Request
-var AnyValues = []string{}
-var NamedValues = map[string]string{}
-
 // add views and render engine
+var Requests = make(map[string]*Request)
 
-var v = models.View{}
+var BaseUrl = ""
 
-func AddView(location string, args any) string {
+// voutputs["lol"] = "string"
+//var wg *sync.WaitGroup
+
+func AddView(w http.ResponseWriter, location string, args any) string {
 	out := ""
 	//no reason to choose engine for now with: app.GetConfig()...
 	data, err := os.ReadFile("./views/" + location)
@@ -49,7 +63,11 @@ func AddView(location string, args any) string {
 	for _, e := range templates.Registry {
 		if e.Ext == filepath.Ext(location) {
 			out, err = e.Engine.Render(string(data), args)
-			v.Output = out
+			//head :=
+			//fmt.Println(r)
+
+			Requests[w.Header().Get("X-Request-Id")].View.Output = out
+
 			if err != nil {
 				fmt.Println("Error:", err)
 				return ""
@@ -62,14 +80,14 @@ func AddView(location string, args any) string {
 }
 
 func GetView() models.View {
-	return v
+	return Requests["0"].View
 }
-func ClearOutput() {
-	v.Output = ""
+func ClearOutput(id string) {
+	Requests[string(id)].View.Output = ""
 }
 
-func GetOutput() string {
-	return v.Output
+func GetOutput(w http.ResponseWriter) string {
+	return Requests[w.Header().Get("X-Request-Id")].View.Output
 }
 
 /*

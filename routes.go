@@ -8,6 +8,10 @@ import (
 	"net/http"
 )
 
+type key string
+
+const requestIDKey key = "requestID"
+
 func addRoutes() {
 	router.Add("/assets/", http.StripPrefix("/assets/", system.Fs(http.Dir("./assets"))))
 	router.Add("/", controller.Index("Welcome!"))

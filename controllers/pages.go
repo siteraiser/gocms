@@ -23,13 +23,13 @@ func Index(welcome_message string) http.Handler {
 			},
 		}
 
-		home := app.AddView("home.hbs", ctx)
+		home := app.AddView(w, "home.hbs", ctx)
 		ctx2 := models.Page{
 			Lang:  app.Config.Settings.Preferences.Language,
 			Title: string(welcome_message),
 			Body:  home + "<a href='/test'>Test page</a><br><a href='/another/value1/and/value2'>Any Vars Test page</a><br><a href='/another/value1/link'>Named Vars Test page</a><br><a href='/autorouted'>Auto-routed page</a>",
 		}
-		fmt.Fprintf(w, "%v", app.AddView("document.hbs", ctx2))
+		fmt.Fprintf(w, "%v", app.AddView(w, "document.hbs", ctx2))
 	})
 }
 
@@ -52,7 +52,7 @@ func RandoHandler() http.Handler {
 func OtherHandler(arguments string) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		fmt.Fprintf(w, "<div>Named Values %v\n </div>", app.NamedValues["id"])
+		fmt.Fprintf(w, "<div>Named Values %v\n </div>", app.Requests[w.Header().Get("X-Request-Id")].NamedValues["id"])
 	}
 	return http.HandlerFunc(fn)
 }
@@ -60,7 +60,7 @@ func OtherHandler(arguments string) http.Handler {
 func TestPageHandler(arguments string) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		fmt.Fprintf(w, "<div>Any value 0: %v\n </div><br><a href='"+app.BaseUrl+"autorouted'>Go to autorouted page</a>", app.AnyValues[0])
+		fmt.Fprintf(w, "<div>Any value 0: %v\n </div><br><a href='"+app.BaseUrl+"autorouted'>Go to autorouted page</a>", app.Requests[w.Header().Get("X-Request-Id")].AnyValues[0])
 	}
 	return http.HandlerFunc(fn)
 }
@@ -69,7 +69,7 @@ func TestHandler() http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		output := ""
-		for _, value := range app.AnyValues {
+		for _, value := range app.Requests[w.Header().Get("X-Request-Id")].AnyValues {
 			output += value
 		}
 		fmt.Fprintf(w, "<div>All any values %v\n </div>", output)
