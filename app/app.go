@@ -181,29 +181,29 @@ type URLInterface interface {
 
 func Cms(r *http.Request) cms {
 	return cms{
-		URL:   UrlSegs{R: r},
+		URL:   URLSegs{R: r},
 		Any:   URLAnyValue{R: r},
 		Named: URLNameValue{R: r},
 	}
 }
 
 type cms struct {
-	URL   UrlSegs
+	URL   URLSegs
 	Any   URLAnyValue
 	Named URLNameValue
 }
-type UrlSegs struct {
+
+type URLSegs struct {
 	R *http.Request
 }
 type URLAnyValue struct {
 	R *http.Request
 }
-
 type URLNameValue struct {
 	R *http.Request
 }
 
-func (r UrlSegs) Segments() []string {
+func (r URLSegs) Segments() []string {
 	return UrlSegments(r.R)
 }
 
@@ -220,6 +220,7 @@ func (r URLNameValue) Value(i string) string {
 func (r URLNameValue) Values() map[string]string {
 	return NamedValues(r.R)
 }
+
 func AnyValue(r *http.Request, index int) string {
 	Any := AnyValues(r)
 	if len(Any)-1 >= index {
