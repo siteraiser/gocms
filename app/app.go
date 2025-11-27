@@ -177,22 +177,15 @@ Uses app.functions to actually get the values.
 
 func Cms(r *http.Request) cms {
 	return cms{
-		Values: struct {
-			Any   URLAnyValue
-			Named URLNameValue
-		}{
-			Any:   URLAnyValue{R: r},
-			Named: URLNameValue{R: r},
-		},
+		Any:   URLAnyValue{R: r},
+		Named: URLNameValue{R: r},
 	}
 }
 
 type cms struct {
-	URL    URLInterface
-	Values struct {
-		Any   URLAnyValue
-		Named URLNameValue
-	}
+	URL   URLInterface
+	Any   URLAnyValue
+	Named URLNameValue
 }
 
 type URLInterface interface {
@@ -201,19 +194,19 @@ type URLInterface interface {
 }
 
 type URLAnyValue struct {
-	AnyValue func(*http.Request, int) string
-	R        *http.Request
+	Value func(*http.Request, int) string
+	R     *http.Request
 }
 
 type URLNameValue struct {
-	NameValue func(*http.Request, string) string
-	R         *http.Request
+	Value func(*http.Request, string) string
+	R     *http.Request
 }
 
-func (r URLAnyValue) AnyValues(i int) string {
+func (r URLAnyValue) Values(i int) string {
 	return AnyValue(r.R, i)
 }
-func (r URLNameValue) NameValues(i string) string {
+func (r URLNameValue) Values(i string) string {
 	return NameValue(r.R, i)
 }
 
