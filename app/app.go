@@ -194,13 +194,11 @@ type URLInterface interface {
 }
 
 type URLAnyValue struct {
-	Val func(*http.Request, int) string
-	R   *http.Request
+	R *http.Request
 }
 
 type URLNameValue struct {
-	Val func(*http.Request, string) string
-	R   *http.Request
+	R *http.Request
 }
 
 func (r URLAnyValue) Value(i int) string {
