@@ -194,19 +194,19 @@ type URLInterface interface {
 }
 
 type URLAnyValue struct {
-	Value func(*http.Request, int) string
-	R     *http.Request
+	Val func(*http.Request, int) string
+	R   *http.Request
 }
 
 type URLNameValue struct {
-	Value func(*http.Request, string) string
-	R     *http.Request
+	Val func(*http.Request, string) string
+	R   *http.Request
 }
 
-func (r URLAnyValue) Values(i int) string {
+func (r URLAnyValue) Value(i int) string {
 	return AnyValue(r.R, i)
 }
-func (r URLNameValue) Values(i string) string {
+func (r URLNameValue) Value(i string) string {
 	return NameValue(r.R, i)
 }
 
