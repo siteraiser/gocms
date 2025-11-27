@@ -6,6 +6,7 @@ import (
 	"gocms/models"
 	"math/rand"
 	"net/http"
+	"time"
 )
 
 // controllers
@@ -49,17 +50,11 @@ func RandoHandler() http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func OtherHandler(arguments string) http.Handler {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		fmt.Fprintf(w, "<div>Named Values %v\n </div>", app.NamedValues(w)["id"])
-	}
-	return http.HandlerFunc(fn)
-}
 func TestPageHandler(arguments string) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		fmt.Fprintf(w, "<div>Any value 0: %v\n </div><br><a href='"+app.BaseUrl+"autorouted'>Go to autorouted page</a>", app.AnyValues(w)[0])
+
+		fmt.Fprintf(w, "<div>Any value 0: %v\n </div><br><a href='"+app.BaseUrl+"autorouted'>Go to autorouted page</a>", app.Req(r).AnyValues[0]) //app.Req(r).AnyValues[0]
 	}
 	return http.HandlerFunc(fn)
 }
@@ -67,11 +62,25 @@ func TestPageHandler(arguments string) http.Handler {
 func TestHandler() http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		//App := app.Cms(r)
 		output := ""
-		for _, value := range app.Requests[app.GetId(w)].AnyValues {
+		for _, value := range app.Req(r).AnyValues {
 			output += value
 		}
 		fmt.Fprintf(w, "<div>All any values %v\n </div>", output)
+	}
+	return http.HandlerFunc(fn)
+}
+
+func OtherHandler(arguments string) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		//app.NamedValues(r)["id"]
+		//app.Req(r).NamedValues["id"]
+		//or...for now...
+		id := app.Cms(r).Values.Named.NameValues("id")
+		time.Sleep(time.Second * 5)
+		fmt.Fprintf(w, "<div>Named Values:<b>%v</b> </div>", id)
 	}
 	return http.HandlerFunc(fn)
 }

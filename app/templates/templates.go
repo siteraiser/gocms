@@ -1,11 +1,5 @@
 package templates
 
-import (
-	"gocms/app/models"
-)
-
-var V models.View
-
 type Engine struct {
 	Ext    string
 	Engine Renderer

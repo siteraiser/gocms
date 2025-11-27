@@ -1,31 +1,25 @@
 package app
 
 import (
+	"context"
 	"fmt"
 
 	"gocms/app/models"
+	"gocms/app/router"
 	"gocms/templates"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 type key string
 
 const RequestIDKey key = "requestID"
-
-type Request struct {
-	Id          string
-	View        models.View
-	RouteType   string
-	Handler     http.Handler
-	HandlerFunc http.HandlerFunc
-	Path        string
-	UrlSegments []string
-	AnyValues   []string
-	NamedValues map[string]string
-}
 
 var Mutex sync.Mutex
 
@@ -36,31 +30,239 @@ type Routing struct {
 
 var Router Routing
 
-func NewApp(ah http.Handler) {
+func NewApp(h http.Handler) {
 	Router = Routing{
-		ah,
+		h,
 	}
 }
 
-// add views and render engine
-var Requests = make(map[string]*Request)
+type Handler struct{}
+
+func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	start := time.Now()
+	requestid := r.Header.Get("X-Request-Id")
+	if requestid == "" {
+		requestid = uuid.New().String()
+	}
+
+	ctx := context.WithValue(r.Context(), "RID", requestid)
+	w.Header().Set("X-Request-Id", requestid)
+	//w.Header().Add("requestid", requestid)
+
+	req := models.Request{
+		Id:      requestid,
+		Handler: h,
+		Path:    r.URL.Path,
+	}
+	Mutex.Lock()
+	Requests[requestid] = &req
+	Mutex.Unlock()
+
+	path := r.URL.Path
+	if path != "/" {
+		path = strings.TrimLeft(path, "/")
+	}
+	urlsegs := strings.Split(path, "/")
+	//app.Request = r
+
+	routetype := ""
+	found := false
+
+	//Capture the output and send it but clear the output on the way out
+	flusher, ok := w.(http.Flusher)
+	if !ok {
+		http.Error(w, "Streaming unsupported!", http.StatusInternalServerError)
+		return
+	}
+	//check for other resources that aren't using the default routing here
+	//	app.Mutex.Lock()
+	req.Path = path
+	req.UrlSegments = urlsegs
+
+	//try custom / primary...
+	err := router.GetPage(w, r.Clone(ctx))
+	if err == nil {
+		routetype = "primary"
+		found = true
+	}
+
+	//try other ones...
+	//No manual checks matched the request URL using the primary router, now try secondary router
+	var route router.Route
+	var anyvalues []string
+	var namedvalues map[string]string
+	if !found {
+		route, anyvalues, namedvalues, found = router.RouteIt(path, r.Method)
+		if found {
+			routetype = "secondary"
+		}
+	}
+
+	//if still not found then check for auto-routed controllers/functions (package/function)...
+	var hfn http.HandlerFunc
+	if !found && Config.Settings.Preferences.AutoRoutes {
+		hfn, found = router.AutoRouteIt(path, urlsegs)
+		if found {
+			routetype = "auto"
+		}
+	}
+
+	if found {
+		Mutex.Lock()
+		Requests[requestid].Path = path
+		Requests[requestid].AnyValues = anyvalues
+		Requests[requestid].NamedValues = namedvalues
+		Requests[requestid].RouteType = routetype
+
+		if routetype == "secondary" {
+			Requests[requestid].Handler = route.Controller
+		}
+		if routetype == "auto" {
+			Requests[requestid].HandlerFunc = hfn
+		}
+		Mutex.Unlock()
+		for _, req := range Requests {
+			if req.Id == requestid {
+				switch req.RouteType {
+				case "secondary":
+					req.Handler.ServeHTTP(w, r.WithContext(ctx))
+				case "auto":
+					req.HandlerFunc.ServeHTTP(w, r.WithContext(ctx))
+				}
+			}
+		}
+		fmt.Printf("Served from %v router:  %v in %v\n", routetype, path, time.Since(start))
+		fmt.Println("route: ", route)
+		//If combining content from multiple views, flush after serving
+
+		flusher.Flush()
+		// Do background work without blocking the client
+		go func() {
+			//	app.ClearOutput(requestid)
+			Mutex.Lock()
+			delete(Requests, requestid)
+			Mutex.Unlock()
+		}()
+		return
+	}
+	fmt.Println("Not found with router: ", path)
+	fmt.Println("route: ", route)
+
+	w.WriteHeader(http.StatusNotFound)
+	w.Write([]byte("Custom 404: Page not found"))
+	flusher.Flush()
+
+}
 
 var BaseUrl = ""
 
-func GetId(w http.ResponseWriter) string {
-	return w.Header().Get("X-Request-Id")
+// add views and render engine
+var Requests = make(map[string]*models.Request)
+
+type URLValues struct {
+	AnyValues   []string
+	NamedValues map[string]string
 }
 
-func UrlSegments(w http.ResponseWriter) []string {
-	return Requests[GetId(w)].UrlSegments
-}
-func AnyValues(w http.ResponseWriter) []string {
-	return Requests[GetId(w)].AnyValues
-}
-func NamedValues(w http.ResponseWriter) map[string]string {
-	return Requests[GetId(w)].NamedValues
+type RequestValues struct {
+	AnyValue   func(int) string
+	NamedValue func(string) string
+	URLVals    URLValues
 }
 
+/*
+Alternate interface using app.Cms{}
+Uses app.functions to actually get the values.
+*/
+// -------------------
+
+func Cms(r *http.Request) cms {
+	return cms{
+		Values: struct {
+			Any   URLAnyValue
+			Named URLNameValue
+		}{
+			Any:   URLAnyValue{R: r},
+			Named: URLNameValue{R: r},
+		},
+	}
+}
+
+type cms struct {
+	URL    URLInterface
+	Values struct {
+		Any   URLAnyValue
+		Named URLNameValue
+	}
+}
+
+type URLInterface interface {
+	AnyValues(i int) []string
+	NamedValues(i string) map[string]string
+}
+
+type URLAnyValue struct {
+	AnyValue func(*http.Request, int) string
+	R        *http.Request
+}
+
+type URLNameValue struct {
+	NameValue func(*http.Request, string) string
+	R         *http.Request
+}
+
+func (r URLAnyValue) AnyValues(i int) string {
+	return AnyValue(r.R, i)
+}
+func (r URLNameValue) NameValues(i string) string {
+	return NameValue(r.R, i)
+}
+
+func AnyValue(r *http.Request, index int) string {
+	Any := AnyValues(r)
+	if len(Any)-1 >= index {
+		return Any[index]
+	}
+	return ""
+}
+func NameValue(r *http.Request, index string) string {
+	Named := NamedValues(r)
+	if vals, exists := Named[index]; exists {
+		return vals
+	}
+	return ""
+}
+
+// ------------------------------
+func Req(r *http.Request) URLValues {
+	return URLValues{
+		AnyValues:   AnyValues(r),
+		NamedValues: NamedValues(r),
+	}
+}
+
+func GetId(r *http.Request) string {
+	fmt.Println("r.Context().Value():", r.Context().Value("RID"))
+	if r.Context().Value("RID") != nil {
+		return r.Context().Value("RID").(string)
+	}
+	return ""
+}
+
+func UrlSegments(r *http.Request) []string {
+	fmt.Println("GetId(r):", GetId(r))
+	return Requests[GetId(r)].UrlSegments
+}
+
+func AnyValues(r *http.Request) []string {
+	fmt.Println("AnyValues:", Requests)
+	return Requests[GetId(r)].AnyValues
+}
+
+func NamedValues(r *http.Request) map[string]string {
+	fmt.Println("NamedValues:", Requests)
+	return Requests[GetId(r)].NamedValues
+}
 func AddView(location string, args any) string {
 	out := ""
 	//no reason to choose engine for now with: app.GetConfig()...
@@ -89,6 +291,14 @@ func AddView(location string, args any) string {
 }
 
 /*
+type Handler interface {
+	Id          string
+	w           http.ResponseWriter
+	r           http.Request
+	Requestvars string
+}
+
+
 	func GetView() models.View {
 		return Requests["0"].View
 	}

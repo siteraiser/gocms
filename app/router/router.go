@@ -3,32 +3,13 @@ package router
 import (
 	"errors"
 	"fmt"
-	"gocms/app"
-	"gocms/app/models"
 	"net/http"
 	"path/filepath"
 	"reflect"
 	"runtime"
 	"strings"
-	"time"
-
-	"github.com/google/uuid"
 )
 
-/*
-	type Request struct {
-		Page Page
-	}
-
-	type Page struct {
-		Attributes struct {
-			Header http.Header
-		}
-		Meta    string
-		Content string
-		Assets  map[string]string
-	}
-*/
 type Route struct {
 	Pattern     string
 	Controller  http.Handler
@@ -67,8 +48,6 @@ func Add(pattern string, controller http.Handler) {
 
 // Add a controller
 func AddFunc(controller http.HandlerFunc) {
-	//	funcValue := reflect.ValueOf(controller)
-	//fmt.Println("Value of controller: ", funcValue)
 	// simple mvc routing
 	name := getName(controller)
 	fmt.Println("name of controller: ", name)
@@ -79,140 +58,13 @@ func AddFunc(controller http.HandlerFunc) {
 		before, fn, _ := strings.Cut(name, ".")
 		pkgArr := strings.Split(before, "/")
 		pkg := pkgArr[len(pkgArr)-1]
-		//	fmt.Println("pkg", pkg)
-		//	fmt.Println("function", fn)
 		controllers.List[strings.ToLower(pkg+"/"+fn)] = controller
 	}
 
 }
 
 func getName(myvar interface{}) string {
-
 	return runtime.FuncForPC(reflect.ValueOf(myvar).Pointer()).Name()
-
-}
-
-type Handler struct{}
-
-func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	start := time.Now()
-	requestid := r.Header.Get("X-Request-Id")
-	if requestid == "" {
-		requestid = uuid.New().String()
-	}
-
-	//ctx := context.WithValue(r.Context(), app.RequestIDKey, requestid)
-	w.Header().Set("X-Request-Id", requestid)
-
-	req := app.Request{
-		Id:      requestid,
-		Handler: h,
-		Path:    r.URL.Path,
-	}
-	app.Mutex.Lock()
-	app.Requests[requestid] = &req
-	app.Mutex.Unlock()
-
-	path := r.URL.Path
-	if path != "/" {
-		path = strings.TrimLeft(path, "/")
-	}
-	urlsegs := strings.Split(path, "/")
-	//app.Request = r
-
-	//Capture the output and send it but clear the output on the way out
-	flusher, ok := w.(http.Flusher)
-	if !ok {
-		http.Error(w, "Streaming unsupported!", http.StatusInternalServerError)
-		return
-	}
-	routetype := ""
-	found := false
-	//check for other resources that aren't using the default routing here
-	//	app.Mutex.Lock()
-	req.Path = path
-	req.UrlSegments = urlsegs
-	req.AnyValues = []string{}
-	req.NamedValues = map[string]string{}
-	err := GetPage(w, r)
-	//	app.Mutex.Unlock()
-	if err == nil {
-		routetype = "primary"
-		found = true
-	}
-
-	//No manual checks matched the request URL using the primary router, now try secondary router
-	var route Route
-	var anyvalues []string
-	var namedvalues map[string]string
-	if !found {
-		route, anyvalues, namedvalues, found = routeIt(path, r.Method)
-		if found {
-			routetype = "secondary"
-		}
-	}
-
-	//if still not found then check for auto-routed controllers/functions (package/function)...
-	var hfn http.HandlerFunc
-	if !found && app.Config.Settings.Preferences.AutoRoutes {
-		hfn, found = autoRouteIt(path, urlsegs)
-		if found {
-			routetype = "auto"
-		}
-	}
-
-	if found {
-
-		//	app.Mutex.Lock()
-		//	defer app.Mutex.Unlock()
-		//
-		app.Mutex.Lock()
-		app.Requests[requestid].Path = path
-		app.Requests[requestid].AnyValues = anyvalues
-		app.Requests[requestid].NamedValues = namedvalues
-		app.Requests[requestid].RouteType = routetype
-		app.Requests[requestid].View = models.View{RequestId: requestid}
-		//app.NamedValues = namedvalues
-
-		if routetype == "secondary" {
-			app.Requests[requestid].Handler = route.Controller
-
-		}
-		if routetype == "auto" {
-			app.Requests[requestid].HandlerFunc = hfn
-		}
-		app.Mutex.Unlock()
-		for _, req := range app.Requests {
-			if req.Id == requestid {
-				switch req.RouteType {
-				case "secondary":
-					req.Handler.ServeHTTP(w, r)
-				case "auto":
-					req.HandlerFunc.ServeHTTP(w, r)
-				}
-			}
-		}
-		fmt.Printf("Served from %v router:  %v in %v\n", routetype, path, time.Since(start))
-		fmt.Println("route: ", route)
-		//If combining content from multiple views, flush after serving
-
-		flusher.Flush()
-		//	fmt.Println(w.Header().Get("Body"))
-		// Do background work without blocking the client
-		go func() {
-			//	app.ClearOutput(requestid)
-
-		}()
-		return
-	}
-
-	fmt.Println("Not found with router: ", path)
-	fmt.Println("route: ", route)
-
-	w.WriteHeader(http.StatusNotFound)
-	w.Write([]byte("Custom 404: Page not found"))
-	flusher.Flush()
-
 }
 
 func GetPage(w http.ResponseWriter, r *http.Request) error {
@@ -235,51 +87,7 @@ func GetPage(w http.ResponseWriter, r *http.Request) error {
 
 }
 
-func routeIt(path string, method string) (Route, []string, map[string]string, bool) {
-
-	match := func(pattern []string, url_segs []string) ([]string, map[string]string, bool) {
-		i := 0
-		match := false
-		urlcount := len(url_segs)
-		anything := []string{}
-		named := map[string]string{}
-		for _, value := range pattern {
-			pattern_param := string(value)
-			if len(url_segs) > i && len(pattern_param) > 0 {
-				//if segment is not a parameter
-				if pattern_param[0:1] != "{" && pattern_param[len(pattern_param)-2:len(pattern_param)-1] != "}" {
-					//if it matches
-					if url_segs[i] == pattern_param {
-						match = true
-					} else {
-						return []string{}, map[string]string{}, false
-					}
-				} else {
-					//Save any {$} and named {id} parameter values
-					if url_segs[i] != "" {
-						parametervalue := pattern_param[1 : len(pattern_param)-1]
-						if parametervalue == "$" {
-							anything = append(anything, url_segs[i])
-						} else if len(parametervalue) > 0 {
-							named[parametervalue] = url_segs[i]
-						}
-					}
-				}
-			} else {
-				return []string{}, map[string]string{}, false
-			}
-			i++
-
-			if urlcount == 0 {
-				return []string{}, map[string]string{}, false
-			}
-			urlcount--
-		}
-		if len(anything) == 0 && len(named) == 0 && match {
-			return []string{}, map[string]string{}, true
-		}
-		return anything, named, true
-	}
+func RouteIt(path string, method string) (Route, []string, map[string]string, bool) {
 
 	i := 0
 	var anyParams []string
@@ -320,7 +128,7 @@ func routeIt(path string, method string) (Route, []string, map[string]string, bo
 
 			p_len := min(len(pattern), len(url_segs))
 			//Step through the pattern and the path simultaneously to look for matches
-			anyParams, namedParams, found = match(pattern, url_segs[:p_len])
+			anyParams, namedParams, found = Match(pattern, url_segs[:p_len])
 		}
 
 		if found {
@@ -339,8 +147,51 @@ func routeIt(path string, method string) (Route, []string, map[string]string, bo
 	}
 	return route, anys, named, found
 }
+func Match(pattern []string, url_segs []string) ([]string, map[string]string, bool) {
+	i := 0
+	match := false
+	urlcount := len(url_segs)
+	anything := []string{}
+	named := map[string]string{}
+	for _, value := range pattern {
+		pattern_param := string(value)
+		if len(url_segs) > i && len(pattern_param) > 0 {
+			//if segment is not a parameter
+			if pattern_param[0:1] != "{" && pattern_param[len(pattern_param)-2:len(pattern_param)-1] != "}" {
+				//if it matches
+				if url_segs[i] == pattern_param {
+					match = true
+				} else {
+					return []string{}, map[string]string{}, false
+				}
+			} else {
+				//Save any {$} and named {id} parameter values
+				if url_segs[i] != "" {
+					parametervalue := pattern_param[1 : len(pattern_param)-1]
+					if parametervalue == "$" {
+						anything = append(anything, url_segs[i])
+					} else if len(parametervalue) > 0 {
+						named[parametervalue] = url_segs[i]
+					}
+				}
+			}
+		} else {
+			return []string{}, map[string]string{}, false
+		}
+		i++
 
-func autoRouteIt(path string, urlsegs []string) (http.HandlerFunc, bool) {
+		if urlcount == 0 {
+			return []string{}, map[string]string{}, false
+		}
+		urlcount--
+	}
+	if len(anything) == 0 && len(named) == 0 && match {
+		return []string{}, map[string]string{}, true
+	}
+	return anything, named, true
+}
+
+func AutoRouteIt(path string, urlsegs []string) (http.HandlerFunc, bool) {
 	//found := false
 	controller_name := ""
 	package_name := ""

@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"gocms/app"
-	"gocms/app/router"
 	"net"
 	"net/http"
 	"strconv"
@@ -20,7 +19,7 @@ func main() {
 		panic(err)
 	}
 
-	app.NewApp(&router.Handler{})
+	app.NewApp(&app.Handler{})
 
 	//Add routes, serve assets
 	addRoutes()
