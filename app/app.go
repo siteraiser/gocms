@@ -156,7 +156,6 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 var BaseUrl = ""
 
-// add views and render engine
 var Requests = make(map[string]*models.Request)
 
 type URLValues struct {
