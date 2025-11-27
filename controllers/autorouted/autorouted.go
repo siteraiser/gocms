@@ -13,7 +13,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	title := "Another Title"
 
-	embed := app.AddView(
+	embed := app.Render(
 		"index.mustache",
 		map[string]any{
 			"Title": title,
@@ -25,7 +25,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		},
 	)
 
-	page := app.AddView(
+	page := app.Render(
 		"layouts/main.mustache",
 		map[string]string{
 			"Lang":  app.Config.Settings.Preferences.Language,

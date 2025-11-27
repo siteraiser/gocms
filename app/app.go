@@ -253,7 +253,7 @@ func NamedValues(r *http.Request) map[string]string {
 	fmt.Println("NamedValues:", Requests)
 	return Requests[GetId(r)].NamedValues
 }
-func AddView(location string, args any) string {
+func Render(location string, args any) string {
 	out := ""
 	//no reason to choose engine for now with: app.GetConfig()...
 	data, err := os.ReadFile("./views/" + location)
