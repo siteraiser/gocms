@@ -170,27 +170,31 @@ type RequestValues struct {
 /*
 Alternate interface using app.Cms{}
 Uses app.functions to actually get the values.
-*/
-// -------------------
-
-func Cms(r *http.Request) cms {
-	return cms{
-		Any:   URLAnyValue{R: r},
-		Named: URLNameValue{R: r},
-	}
-}
-
-type cms struct {
-	URL   URLInterface
-	Any   URLAnyValue
-	Named URLNameValue
-}
 
 type URLInterface interface {
 	AnyValues(i int) []string
 	NamedValues(i string) map[string]string
 }
 
+*/
+// -------------------
+
+func Cms(r *http.Request) cms {
+	return cms{
+		URL:   UrlSegs{R: r},
+		Any:   URLAnyValue{R: r},
+		Named: URLNameValue{R: r},
+	}
+}
+
+type cms struct {
+	URL   UrlSegs
+	Any   URLAnyValue
+	Named URLNameValue
+}
+type UrlSegs struct {
+	R *http.Request
+}
 type URLAnyValue struct {
 	R *http.Request
 }
@@ -199,13 +203,23 @@ type URLNameValue struct {
 	R *http.Request
 }
 
+func (r UrlSegs) Segments() []string {
+	return UrlSegments(r.R)
+}
+
 func (r URLAnyValue) Value(i int) string {
 	return AnyValue(r.R, i)
 }
+func (r URLAnyValue) Values() []string {
+	return AnyValues(r.R)
+}
+
 func (r URLNameValue) Value(i string) string {
 	return NameValue(r.R, i)
 }
-
+func (r URLNameValue) Values() map[string]string {
+	return NamedValues(r.R)
+}
 func AnyValue(r *http.Request, index int) string {
 	Any := AnyValues(r)
 	if len(Any)-1 >= index {
