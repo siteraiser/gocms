@@ -63,7 +63,6 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		path = strings.TrimLeft(path, "/")
 	}
 	urlsegs := strings.Split(path, "/")
-	//app.Request = r
 
 	routetype := ""
 	found := false
@@ -75,7 +74,6 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//check for other resources that aren't using the default routing here
-	//	app.Mutex.Lock()
 	req.Path = path
 	req.UrlSegments = urlsegs
 
@@ -279,60 +277,3 @@ func Render(location string, args any) string {
 	//add more types of rendering here...
 	return out
 }
-
-/*
-type Handler interface {
-	Id          string
-	w           http.ResponseWriter
-	r           http.Request
-	Requestvars string
-}
-
-
-	func GetView() models.View {
-		return Requests["0"].View
-	}
-
-	func ClearOutput(id string) {
-		Requests[string(id)].View.Output = ""
-	}
-
-	func GetOutput(w http.ResponseWriter) string {
-		return Requests[GetId(w)].View.Output
-	}
-*/
-
-/*
-func NamedValues(w http.ResponseWriter) map[string]string {
-	return Requests[GetId(w)].NamedValues
-}
-
-
-
-
-// Parameter Functions
-func AnyValues() []string {
-	return AnyParams
-}
-func AnyValue(index int) string {
-
-	if len(AnyParams)-1 >= index {
-		return AnyParams[index]
-	}
-	return ""
-}
-
-
-func RenderView(h any, s string, a any, renderer func(s string, a any) (string, error)) (string, error) {
-	out, err := renderer(s, a)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	V.Output = out
-	return V.Output, err
-}
-
-
-
-
-*/
