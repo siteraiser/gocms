@@ -78,7 +78,7 @@ func OtherHandler(arguments string) http.Handler {
 		//app.NamedValues(r)["id"]
 		//app.Req(r).NamedValues["id"]
 		//or...for now...
-		v := app.Cms(r).URL.Segments()
+		v := app.Cms(r).Named.Values()
 		time.Sleep(time.Second * 5)
 		fmt.Fprintf(w, "<div>Named Values:<b>%v</b> </div>", v)
 	}
