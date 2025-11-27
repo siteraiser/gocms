@@ -150,14 +150,15 @@ func RouteIt(path string, method string) (Route, []string, map[string]string, bo
 func Match(pattern []string, url_segs []string) ([]string, map[string]string, bool) {
 	i := 0
 	match := false
-	urlcount := len(url_segs)
+	url_count := len(url_segs)
 	anything := []string{}
 	named := map[string]string{}
 	for _, value := range pattern {
 		pattern_param := string(value)
-		if len(url_segs) > i && len(pattern_param) > 0 {
+		pattern_param_len := len(pattern_param)
+		if len(url_segs) > i && pattern_param_len > 0 {
 			//if segment is not a parameter
-			if pattern_param[0:1] != "{" && pattern_param[len(pattern_param)-2:len(pattern_param)-1] != "}" {
+			if pattern_param[0:1] != "{" && pattern_param[pattern_param_len-2:pattern_param_len-1] != "}" {
 				//if it matches
 				if url_segs[i] == pattern_param {
 					match = true
@@ -167,7 +168,7 @@ func Match(pattern []string, url_segs []string) ([]string, map[string]string, bo
 			} else {
 				//Save any {$} and named {id} parameter values
 				if url_segs[i] != "" {
-					parametervalue := pattern_param[1 : len(pattern_param)-1]
+					parametervalue := pattern_param[1 : pattern_param_len-1]
 					if parametervalue == "$" {
 						anything = append(anything, url_segs[i])
 					} else if len(parametervalue) > 0 {
@@ -180,10 +181,10 @@ func Match(pattern []string, url_segs []string) ([]string, map[string]string, bo
 		}
 		i++
 
-		if urlcount == 0 {
+		if url_count == 0 {
 			return []string{}, map[string]string{}, false
 		}
-		urlcount--
+		url_count--
 	}
 	if len(anything) == 0 && len(named) == 0 && match {
 		return []string{}, map[string]string{}, true
