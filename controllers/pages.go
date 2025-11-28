@@ -6,7 +6,6 @@ import (
 	"gocms/models"
 	"math/rand"
 	"net/http"
-	"time"
 )
 
 // controllers
@@ -78,9 +77,20 @@ func OtherHandler(arguments string) http.Handler {
 		//app.NamedValues(r)["id"]
 		//app.Req(r).NamedValues["id"]
 		//or...for now...
-		v := app.Cms(r).Named.Values()
-		time.Sleep(time.Second * 5)
-		fmt.Fprintf(w, "<div>Named Values:<b>%v</b> </div>", v)
+		cms := app.Cms(r)
+
+		//time.Sleep(time.Second * 3)
+		link := cms.URL.Path() + "?params1[]=value1&params1[]=value2&param2=value1"
+		output := "<div>Name:  - Value: </div>"
+		for name, value := range cms.Named.Values() {
+			output += "<div>" + string(name) + " - " + string(value) + "</div>"
+		}
+
+		fmt.Fprintf(
+			w,
+			app.Ahref(link, "With params")+"<div>Values:<b>%v</b> </div>"+output,
+			cms.URL.QueryParams(),
+		)
 	}
 	return http.HandlerFunc(fn)
 }

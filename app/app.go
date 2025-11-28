@@ -8,6 +8,7 @@ import (
 	"gocms/app/router"
 	"gocms/templates"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -137,7 +138,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// Do background work without blocking the client
 		go func() {
 			//ClearOutput(requestid)
-			Mutex.Lock()
+			Mutex.Lock() //consider r lock
 			delete(Requests, requestid)
 			Mutex.Unlock()
 		}()
@@ -181,7 +182,7 @@ type URLInterface interface {
 
 func Cms(r *http.Request) cms {
 	return cms{
-		URL:   URLSegs{R: r},
+		URL:   URL{R: r},
 		Any:   URLAnyValue{R: r},
 		Named: URLNameValue{R: r},
 		Views: Views{R: r},
@@ -189,7 +190,7 @@ func Cms(r *http.Request) cms {
 }
 
 type cms struct {
-	URL   URLSegs
+	URL   URL
 	Any   URLAnyValue
 	Named URLNameValue
 	Views Views
@@ -198,8 +199,10 @@ type cms struct {
 type Views struct {
 	R *http.Request
 }
-
-type URLSegs struct {
+type URL struct {
+	R *http.Request
+}
+type QueryParams struct {
 	R *http.Request
 }
 type URLAnyValue struct {
@@ -210,7 +213,7 @@ type URLNameValue struct {
 }
 
 func (v Views) Add(location string, args any) string {
-	content := AddView(v.R, location, args)
+	content := AddView(location, args)
 	Requests[GetId(v.R)].Output = content
 	//	fmt.Println("Served from primary routes: ", v.Output)
 	return content
@@ -220,9 +223,31 @@ func (v Views) Out() string {
 	return Requests[GetId(v.R)].Output
 }
 
-/**/
+func (r URL) Path() string {
+	return r.R.URL.Path
+}
 
-func (r URLSegs) Segments() []string {
+func (r URL) QueryParams() url.Values {
+	parsedURL, err := url.Parse("?" + r.R.URL.RawQuery)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return url.Values{}
+	}
+	fmt.Println("len(parsedURL.Query()):", len(parsedURL.Query()))
+
+	return parsedURL.Query()
+}
+func (r URL) QueryParam(i string) string {
+	parsedURL, err := url.Parse("?" + r.R.URL.RawQuery)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return ""
+	}
+	queryParams := parsedURL.Query()
+	return queryParams.Get(i)
+}
+
+func (r URL) Segments() []string {
 	return UrlSegments(r.R)
 }
 
@@ -285,6 +310,10 @@ func NamedValues(r *http.Request) map[string]string {
 	fmt.Println("NamedValues:", Requests)
 	return Requests[GetId(r)].NamedValues
 }
+
+func AddView(location string, args any) string {
+	return Render(location, args)
+}
 func Render(location string, args any) string {
 	out := ""
 	//no reason to choose engine for now with: app.GetConfig()...
@@ -311,29 +340,8 @@ func Render(location string, args any) string {
 	//add more types of rendering here...
 	return out
 }
-func AddView(r *http.Request, location string, args any) string {
-	out := ""
-	//no reason to choose engine for now with: app.GetConfig()...
-	data, err := os.ReadFile("./views/" + location)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return ""
-	}
-	err = nil
-	//Find the rendering engine in the registry (outside of app folder) and render
-	for _, e := range templates.Registry {
-		if e.Ext == filepath.Ext(location) {
-			out, err = e.Engine.Render(string(data), args)
 
-			//Requests[GetId(w)].Output = out
-
-			if err != nil {
-				fmt.Println("Error:", err)
-				return ""
-			}
-		}
-	}
-
-	//add more types of rendering here...
-	return out
+// --- other random helpers...
+func Ahref(href string, text string) string {
+	return "<a href='" + href + "'>" + text + "</a>"
 }
