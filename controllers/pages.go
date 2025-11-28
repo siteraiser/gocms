@@ -79,6 +79,8 @@ func OtherHandler(arguments string) http.Handler {
 		//or...for now...
 		cms := app.Cms(r)
 
+		header := app.Render("partials/header.hbs", nil)
+
 		//time.Sleep(time.Second * 3)
 		link := cms.URL.Path() + "?params1[]=value1&params1[]=value2&param2=value1"
 		output := "<div>Name:  - Value: </div>"
@@ -88,7 +90,7 @@ func OtherHandler(arguments string) http.Handler {
 
 		fmt.Fprintf(
 			w,
-			app.Ahref(link, "With params")+"<div>Values:<b>%v</b> </div>"+output,
+			header+app.Ahref(link, "With params")+"<div>Values:<b>%v</b> </div>"+output,
 			cms.URL.QueryParams(),
 		)
 	}
