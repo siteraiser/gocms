@@ -169,14 +169,8 @@ type RequestValues struct {
 }
 
 /*
-Alternate interface using app.Cms{}
-Uses app.functions to actually get the values.
-
-type URLInterface interface {
-	AnyValues(i int) []string
-	NamedValues(i string) map[string]string
-}
-
+Main interface using app.Cms{}
+Uses some app.functions to actually get the values.
 */
 // -------------------
 
@@ -295,14 +289,14 @@ func (v Views) Render(location string, args any) string {
 	return Render(location, args)
 }
 
-// Calls render function saves the ouptut and returns the string result
+// Calls render function, appends to Response Ouptut and returns the string result
 func (v Views) Add(location string, args any) string {
 	content := Render(location, args)
 	Requests[GetId(v.R)].Output += content
 	return content
 }
 
-// Returns the view output from all prior Add view calls
+// Returns the view output from all prior Views.Add  calls
 func (v Views) Out() string {
 	return Requests[GetId(v.R)].Output
 }
@@ -324,6 +318,9 @@ func NameValue(r *http.Request, index string) string {
 }
 
 // ------------------------------
+
+// ------------------------------
+// Shortcuts to common functions via app.*
 func Req(r *http.Request) URLValues {
 	return URLValues{
 		AnyValues:   AnyValues(r),
@@ -332,7 +329,7 @@ func Req(r *http.Request) URLValues {
 }
 
 func GetId(r *http.Request) string {
-	fmt.Println("r.Context().Value():", r.Context().Value("RID"))
+	//fmt.Println("r.Context().Value():", r.Context().Value("RID"))
 	if r.Context().Value("RID") != nil {
 		return r.Context().Value("RID").(string)
 	}
