@@ -277,6 +277,10 @@ func (r Form) Field(i string) string {
 	return r.R.Form.Get(i)
 }
 
+func (v Views) Render(location string, args any) string {
+	return Render(location, args)
+}
+
 func (v Views) Add(location string, args any) string {
 	content := AddView(location, args)
 	Requests[GetId(v.R)].Output = content

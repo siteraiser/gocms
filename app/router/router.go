@@ -98,8 +98,10 @@ func RouteIt(path string, method string) (Route, []string, map[string]string, bo
 	for _, route = range routes.List {
 
 		//Filter by request type
-		if route.RequestType == "" || (route.RequestType != "" && !strings.EqualFold(route.RequestType, method)) {
+		if route.RequestType != "" && !strings.EqualFold(route.RequestType, method) {
 			fmt.Println("excluded by request type")
+			fmt.Println("RequestType", route.RequestType)
+			fmt.Println("method", method)
 			continue
 		}
 

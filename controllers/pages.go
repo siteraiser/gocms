@@ -105,7 +105,7 @@ func FormHandler() http.Handler {
 		//or...for now...
 		cms := app.Cms(r)
 
-		content := app.Render("forms/testform.hbs", nil)
+		content := cms.Views.Render("forms/testform.hbs", nil)
 
 		fmt.Fprintf(
 			w,
