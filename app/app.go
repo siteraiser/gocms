@@ -242,24 +242,32 @@ func (r URL) QueryParam(i string) string {
 	return queryParams.Get(i)
 }
 
+// Returns an array of the URL segments
 func (r URL) Segments() []string {
 	return UrlSegments(r.R)
 }
 
+// Returns any value "{$}" by index
 func (r URLAnyValue) Value(i int) string {
 	return AnyValue(r.R, i)
 }
+
+// Returns array of any values "{$}"
 func (r URLAnyValue) Values() []string {
 	return AnyValues(r.R)
 }
 
+// Returns map of named values "{id}"
 func (r URLNameValue) Value(i string) string {
 	return NameValue(r.R, i)
 }
+
+// Returns anamedny value "{id}" by string key
 func (r URLNameValue) Values() map[string]string {
 	return NamedValues(r.R)
 }
 
+// Returns form fields from post request
 func (r Form) Fields() url.Values {
 	err := r.R.ParseForm()
 	if err != nil {
@@ -268,6 +276,8 @@ func (r Form) Fields() url.Values {
 	}
 	return r.R.Form
 }
+
+// Returns form field from post request by key
 func (r Form) Field(i string) string {
 	err := r.R.ParseForm()
 	if err != nil {
@@ -277,23 +287,24 @@ func (r Form) Field(i string) string {
 	return r.R.Form.Get(i)
 }
 
+// Calls render function
 func (v Views) Render(location string, args any) string {
 	return Render(location, args)
 }
 
+// Calls render function saves the ouptut and returns the string result
 func (v Views) Add(location string, args any) string {
 	content := AddView(location, args)
 	Requests[GetId(v.R)].Output = content
-	//	fmt.Println("Served from primary routes: ", v.Output)
 	return content
 }
 
+// Returns the view output from all prior Add view calls
 func (v Views) Out() string {
 	return Requests[GetId(v.R)].Output
 }
 
-//---
-
+// ---
 func AnyValue(r *http.Request, index int) string {
 	Any := AnyValues(r)
 	if len(Any)-1 >= index {
