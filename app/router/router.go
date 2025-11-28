@@ -103,7 +103,7 @@ func RouteIt(path string, method string) (Route, []string, map[string]string, bo
 			continue
 		}
 
-		if path == "/" && route.Pattern == "/" { //good enough
+		if path == "/" && route.Pattern == "/" {
 			//index
 			found = true
 			break

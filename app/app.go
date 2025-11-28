@@ -157,17 +157,6 @@ var BaseUrl = ""
 
 var Requests = make(map[string]*models.Request)
 
-type URLValues struct {
-	AnyValues   []string
-	NamedValues map[string]string
-}
-
-type RequestValues struct {
-	AnyValue   func(int) string
-	NamedValue func(string) string
-	URLVals    URLValues
-}
-
 /*
 Main interface using app.Cms{}
 Uses some app.functions to actually get the values.
@@ -179,17 +168,33 @@ func Cms(r *http.Request) cms {
 		URL:   URL{R: r},
 		Any:   URLAnyValue{R: r},
 		Named: URLNameValue{R: r},
+		Values: URLValues{
+			Any:   AnyValues(r),
+			Named: NamedValues(r),
+		},
 		Form:  Form{R: r},
 		Views: Views{R: r},
 	}
 }
 
 type cms struct {
-	URL   URL
-	Any   URLAnyValue
-	Named URLNameValue
-	Form  Form
-	Views Views
+	URL    URL
+	Any    URLAnyValue
+	Named  URLNameValue
+	Values URLValues
+	Form   Form
+	Views  Views
+}
+
+type URLValues struct {
+	Any   []string
+	Named map[string]string
+}
+
+type RequestValues struct {
+	AnyValue   func(int) string
+	NamedValue func(string) string
+	URLVals    URLValues
 }
 
 type URL struct {
@@ -321,12 +326,6 @@ func NameValue(r *http.Request, index string) string {
 
 // ------------------------------
 // Shortcuts to common functions via app.*
-func Req(r *http.Request) URLValues {
-	return URLValues{
-		AnyValues:   AnyValues(r),
-		NamedValues: NamedValues(r),
-	}
-}
 
 func GetId(r *http.Request) string {
 	//fmt.Println("r.Context().Value():", r.Context().Value("RID"))
@@ -337,17 +336,14 @@ func GetId(r *http.Request) string {
 }
 
 func UrlSegments(r *http.Request) []string {
-	fmt.Println("GetId(r):", GetId(r))
 	return Requests[GetId(r)].UrlSegments
 }
 
 func AnyValues(r *http.Request) []string {
-	fmt.Println("AnyValues:", Requests)
 	return Requests[GetId(r)].AnyValues
 }
 
 func NamedValues(r *http.Request) map[string]string {
-	fmt.Println("NamedValues:", Requests)
 	return Requests[GetId(r)].NamedValues
 }
 

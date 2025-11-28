@@ -23,7 +23,7 @@ func Index(welcome_message string) http.Handler {
 			},
 		}
 
-		home := app.Render("home.hbs", ctx)
+		home := app.Render("blogtemplate.hbs", ctx)
 		ctx2 := models.Page{
 			Lang:  app.Config.Settings.Preferences.Language,
 			Title: string(welcome_message),
@@ -53,7 +53,7 @@ func TestPageHandler(arguments string) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-		fmt.Fprintf(w, "<div>Any value 0: %v\n </div><br><a href='"+app.BaseUrl+"autorouted'>Go to autorouted page</a>", app.Req(r).AnyValues[0]) //app.Req(r).AnyValues[0]
+		fmt.Fprintf(w, "<div>Any value 0: %v\n </div><br><a href='"+app.BaseUrl+"autorouted'>Go to autorouted page</a>", app.Cms(r).Any.Values()) //app.Req(r).AnyValues[0]
 	}
 	return http.HandlerFunc(fn)
 }
@@ -63,7 +63,7 @@ func TestHandler() http.Handler {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		//App := app.Cms(r)
 		output := ""
-		for _, value := range app.Req(r).AnyValues {
+		for _, value := range app.Cms(r).Values.Any {
 			output += value
 		}
 		fmt.Fprintf(w, "<div>All any values %v\n </div>", output)
@@ -84,7 +84,7 @@ func OtherHandler(arguments string) http.Handler {
 		//time.Sleep(time.Second * 3)
 		link := cms.URL.Path() + "?params1[]=value1&params1[]=value2&param2=value1"
 		output := "<div>Name:  - Value: </div>"
-		for name, value := range cms.Named.Values() {
+		for name, value := range cms.Values.Named {
 			output += "<div>" + string(name) + " - " + string(value) + "</div>"
 		}
 
