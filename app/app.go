@@ -224,6 +224,7 @@ func (r URL) Path() string {
 	return r.R.URL.Path
 }
 
+// Returns url.Values from "url.Parse" function
 func (r URL) QueryParams() url.Values {
 	parsedURL, err := url.Parse("?" + r.R.URL.RawQuery)
 	if err != nil {
@@ -232,6 +233,8 @@ func (r URL) QueryParams() url.Values {
 	}
 	return parsedURL.Query()
 }
+
+// Returns a query parameter value by key
 func (r URL) QueryParam(i string) string {
 	parsedURL, err := url.Parse("?" + r.R.URL.RawQuery)
 	if err != nil {
