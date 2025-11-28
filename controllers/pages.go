@@ -63,7 +63,7 @@ func TestHandler() http.Handler {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		//App := app.Cms(r)
 		output := ""
-		for _, value := range app.Cms(r).Values.Any {
+		for _, value := range app.Cms(r).Any.Vals {
 			output += value
 		}
 		fmt.Fprintf(w, "<div>All any values %v\n </div>", output)
@@ -84,7 +84,7 @@ func OtherHandler(arguments string) http.Handler {
 		//time.Sleep(time.Second * 3)
 		link := cms.URL.Path() + "?params1[]=value1&params1[]=value2&param2=value1"
 		output := "<div>Name:  - Value: </div>"
-		for name, value := range cms.Values.Named {
+		for name, value := range cms.Named.Vals {
 			output += "<div>" + string(name) + " - " + string(value) + "</div>"
 		}
 

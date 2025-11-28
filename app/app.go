@@ -165,36 +165,30 @@ Uses some app.functions to actually get the values.
 
 func Cms(r *http.Request) cms {
 	return cms{
-		URL:   URL{R: r},
-		Any:   URLAnyValue{R: r},
-		Named: URLNameValue{R: r},
-		Values: URLValues{
-			Any:   AnyValues(r),
-			Named: NamedValues(r),
+		URL: URL{R: r},
+		Any: URLAnyValue{
+			R:    r,
+			Vals: AnyValues(r),
 		},
+		Named: URLNameValue{R: r},
 		Form:  Form{R: r},
 		Views: Views{R: r},
 	}
 }
 
 type cms struct {
-	URL    URL
-	Any    URLAnyValue
-	Named  URLNameValue
-	Values URLValues
-	Form   Form
-	Views  Views
-}
-
-type URLValues struct {
-	Any   []string
-	Named map[string]string
+	URL   URL
+	Any   URLAnyValue
+	Named URLNameValue
+	Form  Form
+	Views Views
 }
 
 type RequestValues struct {
-	AnyValue   func(int) string
-	NamedValue func(string) string
-	URLVals    URLValues
+	AnyValue     func(int) string
+	NamedValue   func(string) string
+	URLAnyVals   []string
+	URLNamedVals map[string]string
 }
 
 type URL struct {
@@ -205,10 +199,12 @@ type QueryParams struct {
 }
 
 type URLAnyValue struct {
-	R *http.Request
+	Vals []string
+	R    *http.Request
 }
 type URLNameValue struct {
-	R *http.Request
+	Vals map[string]string
+	R    *http.Request
 }
 
 type Form struct {
