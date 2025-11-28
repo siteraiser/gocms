@@ -297,8 +297,8 @@ func (v Views) Render(location string, args any) string {
 
 // Calls render function saves the ouptut and returns the string result
 func (v Views) Add(location string, args any) string {
-	content := AddView(location, args)
-	Requests[GetId(v.R)].Output = content
+	content := Render(location, args)
+	Requests[GetId(v.R)].Output += content
 	return content
 }
 
@@ -354,9 +354,6 @@ func NamedValues(r *http.Request) map[string]string {
 	return Requests[GetId(r)].NamedValues
 }
 
-func AddView(location string, args any) string {
-	return Render(location, args)
-}
 func Render(location string, args any) string {
 	out := ""
 	//no reason to choose engine for now with: app.GetConfig()...
