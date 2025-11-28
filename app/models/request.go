@@ -11,4 +11,5 @@ type Request struct {
 	UrlSegments []string
 	AnyValues   []string
 	NamedValues map[string]string
+	Output      string
 }

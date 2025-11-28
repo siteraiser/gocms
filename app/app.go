@@ -136,7 +136,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		flusher.Flush()
 		// Do background work without blocking the client
 		go func() {
-			//	app.ClearOutput(requestid)
+			//ClearOutput(requestid)
 			Mutex.Lock()
 			delete(Requests, requestid)
 			Mutex.Unlock()
@@ -184,6 +184,7 @@ func Cms(r *http.Request) cms {
 		URL:   URLSegs{R: r},
 		Any:   URLAnyValue{R: r},
 		Named: URLNameValue{R: r},
+		Views: Views{R: r},
 	}
 }
 
@@ -191,6 +192,11 @@ type cms struct {
 	URL   URLSegs
 	Any   URLAnyValue
 	Named URLNameValue
+	Views Views
+}
+
+type Views struct {
+	R *http.Request
 }
 
 type URLSegs struct {
@@ -202,6 +208,19 @@ type URLAnyValue struct {
 type URLNameValue struct {
 	R *http.Request
 }
+
+func (v Views) Add(location string, args any) string {
+	content := AddView(v.R, location, args)
+	Requests[GetId(v.R)].Output = content
+	//	fmt.Println("Served from primary routes: ", v.Output)
+	return content
+}
+
+func (v Views) Out() string {
+	return Requests[GetId(v.R)].Output
+}
+
+/**/
 
 func (r URLSegs) Segments() []string {
 	return UrlSegments(r.R)
@@ -281,6 +300,32 @@ func Render(location string, args any) string {
 			out, err = e.Engine.Render(string(data), args)
 
 			//	Requests[GetId(w)].View.Output = out
+
+			if err != nil {
+				fmt.Println("Error:", err)
+				return ""
+			}
+		}
+	}
+
+	//add more types of rendering here...
+	return out
+}
+func AddView(r *http.Request, location string, args any) string {
+	out := ""
+	//no reason to choose engine for now with: app.GetConfig()...
+	data, err := os.ReadFile("./views/" + location)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return ""
+	}
+	err = nil
+	//Find the rendering engine in the registry (outside of app folder) and render
+	for _, e := range templates.Registry {
+		if e.Ext == filepath.Ext(location) {
+			out, err = e.Engine.Render(string(data), args)
+
+			//Requests[GetId(w)].Output = out
 
 			if err != nil {
 				fmt.Println("Error:", err)

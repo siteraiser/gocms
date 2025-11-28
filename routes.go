@@ -19,5 +19,5 @@ func addRoutes() {
 	//auto-mvc functions
 	router.AddFunc(Index)
 	router.AddFunc(Page2)
-
+	router.AddFunc(Page3)
 }
