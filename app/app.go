@@ -185,6 +185,7 @@ func Cms(r *http.Request) cms {
 		URL:   URL{R: r},
 		Any:   URLAnyValue{R: r},
 		Named: URLNameValue{R: r},
+		Form:  Form{R: r},
 		Views: Views{R: r},
 	}
 }
@@ -193,18 +194,17 @@ type cms struct {
 	URL   URL
 	Any   URLAnyValue
 	Named URLNameValue
+	Form  Form
 	Views Views
 }
 
-type Views struct {
-	R *http.Request
-}
 type URL struct {
 	R *http.Request
 }
 type QueryParams struct {
 	R *http.Request
 }
+
 type URLAnyValue struct {
 	R *http.Request
 }
@@ -212,15 +212,12 @@ type URLNameValue struct {
 	R *http.Request
 }
 
-func (v Views) Add(location string, args any) string {
-	content := AddView(location, args)
-	Requests[GetId(v.R)].Output = content
-	//	fmt.Println("Served from primary routes: ", v.Output)
-	return content
+type Form struct {
+	R *http.Request
 }
 
-func (v Views) Out() string {
-	return Requests[GetId(v.R)].Output
+type Views struct {
+	R *http.Request
 }
 
 func (r URL) Path() string {
@@ -233,8 +230,6 @@ func (r URL) QueryParams() url.Values {
 		fmt.Println("Error:", err)
 		return url.Values{}
 	}
-	fmt.Println("len(parsedURL.Query()):", len(parsedURL.Query()))
-
 	return parsedURL.Query()
 }
 func (r URL) QueryParam(i string) string {
@@ -264,6 +259,36 @@ func (r URLNameValue) Value(i string) string {
 func (r URLNameValue) Values() map[string]string {
 	return NamedValues(r.R)
 }
+
+func (r Form) Fields() url.Values {
+	err := r.R.ParseForm()
+	if err != nil {
+		fmt.Println("Error:", err)
+		return url.Values{}
+	}
+	return r.R.Form
+}
+func (r Form) Field(i string) string {
+	err := r.R.ParseForm()
+	if err != nil {
+		fmt.Println("Error:", err)
+		return ""
+	}
+	return r.R.Form.Get(i)
+}
+
+func (v Views) Add(location string, args any) string {
+	content := AddView(location, args)
+	Requests[GetId(v.R)].Output = content
+	//	fmt.Println("Served from primary routes: ", v.Output)
+	return content
+}
+
+func (v Views) Out() string {
+	return Requests[GetId(v.R)].Output
+}
+
+//---
 
 func AnyValue(r *http.Request, index int) string {
 	Any := AnyValues(r)

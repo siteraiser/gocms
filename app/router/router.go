@@ -97,7 +97,13 @@ func RouteIt(path string, method string) (Route, []string, map[string]string, bo
 
 	for _, route = range routes.List {
 
-		if path == "/" && route.Pattern == "/" {
+		//Filter by request type
+		if route.RequestType == "" || (route.RequestType != "" && !strings.EqualFold(route.RequestType, method)) {
+			fmt.Println("excluded by request type")
+			continue
+		}
+
+		if path == "/" && route.Pattern == "/" { //good enough
 			//index
 			found = true
 			break
@@ -107,12 +113,6 @@ func RouteIt(path string, method string) (Route, []string, map[string]string, bo
 
 		pattern_str := string(route.Pattern)
 		pattern_str_len := len(string(route.Pattern))
-
-		//Filter by request type
-		if route.RequestType != "" && route.RequestType != method {
-			found = false
-			break
-		}
 
 		//Check if the pattern is a "folder/" and request is a file
 		if pattern_str[pattern_str_len-1:pattern_str_len] == "/" &&

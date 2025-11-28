@@ -21,6 +21,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 				{"Text": "Home", "Link": "/"},
 				{"Text": "Random", "Link": "/random"},
 				{"Text": "Test page 2", "Link": "/autorouted/page2"},
+				{"Text": "Test POST form", "Link": "/form-submissions"},
 			},
 		},
 	)

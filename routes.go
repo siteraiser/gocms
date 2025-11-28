@@ -15,6 +15,7 @@ func addRoutes() {
 	router.Add("GET /another/{$}/and/{$}", controller.TestHandler())
 	router.Add("/another/{id}/link", controller.OtherHandler("test2"))
 	router.Add("/random", controller.RandoHandler())
+	router.Add("/form-submissions", controller.FormHandler())
 
 	//auto-mvc functions
 	router.AddFunc(Index)

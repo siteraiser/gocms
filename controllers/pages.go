@@ -96,3 +96,22 @@ func OtherHandler(arguments string) http.Handler {
 	}
 	return http.HandlerFunc(fn)
 }
+
+func FormHandler() http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		//app.NamedValues(r)["id"]
+		//app.Req(r).NamedValues["id"]
+		//or...for now...
+		cms := app.Cms(r)
+
+		content := app.Render("forms/testform.hbs", nil)
+
+		fmt.Fprintf(
+			w,
+			content+"<div>Values:<b>%v</b> </div>",
+			cms.Form.Fields(),
+		)
+	}
+	return http.HandlerFunc(fn)
+}
