@@ -50,7 +50,7 @@ func Add(pattern string, controller http.Handler) {
 func AddFunc(controller http.HandlerFunc) {
 	// simple mvc routing
 	name := getName(controller)
-	fmt.Println("name of controller: ", name)
+	//fmt.Println("name of controller: ", name)
 	if controllers.List == nil {
 		controllers.List = make(map[string]http.HandlerFunc)
 	}
