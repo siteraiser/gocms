@@ -3,6 +3,7 @@ package models
 type Page struct {
 	Lang  string
 	Title string
+	Nav   string
 	Body  string
 }
 

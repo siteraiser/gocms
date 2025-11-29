@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gocms/app"
 	"gocms/models"
+	"gocms/modules/menus"
 	"math/rand"
 	"net/http"
 )
@@ -14,13 +15,29 @@ func Index(welcome_message string) http.Handler {
 
 		cms := app.Cms(r).Header.Set("Content-Type", "text/html; charset=utf-8")
 
+		ctx2 := models.Page{
+			Lang:  app.Config.Settings.Language,
+			Title: string(welcome_message),
+			Nav:   menus.GetMenu(),
+			Body:  "<a href='/test'>Test page</a><br><a href='/another/value1/and/value2'>Any Vars Test page</a><br><a href='/another/value1/link'>Named Vars Test page</a><br><a href='/autorouted'>Auto-routed page</a><br><a href='/blog'>Blog</a>",
+		}
+		cms.Views.Add("document.hbs", ctx2)
+	})
+}
+
+// controllers
+func BlogHandler(welcome_message string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		cms := app.Cms(r).Header.Set("Content-Type", "text/html; charset=utf-8")
+
 		ctx := models.Post{
-			models.Person{"Jean", "Valjean"},
-			"Life is difficult",
-			[]models.Comment{
-				models.Comment{
-					models.Person{"Marcel", "Beliveau"},
-					"LOL!",
+			Author: models.Person{FirstName: "Jean", LastName: "Valjean"},
+			Body:   "Life is difficult",
+			Comments: []models.Comment{
+				{
+					Author: models.Person{FirstName: "Marcel", LastName: "Beliveau"},
+					Body:   "LOL!",
 				},
 			},
 		}
@@ -28,13 +45,12 @@ func Index(welcome_message string) http.Handler {
 		home := cms.Views.Render("blogtemplate.hbs", ctx)
 		ctx2 := models.Page{
 			Lang:  app.Config.Settings.Language,
-			Title: string(welcome_message),
-			Body:  home + "<a href='/test'>Test page</a><br><a href='/another/value1/and/value2'>Any Vars Test page</a><br><a href='/another/value1/link'>Named Vars Test page</a><br><a href='/autorouted'>Auto-routed page</a>",
+			Title: "Welcome to the Handlebars example blog template",
+			Body:  home + "<a href='/'>Home</a>",
 		}
 		cms.Views.Add("document.hbs", ctx2)
 	})
 }
-
 func RandoHandler() http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		// Set headers to prevent caching
@@ -111,7 +127,7 @@ func FormHandler() http.Handler {
 
 		fmt.Fprintf(
 			w,
-			content+"<div>Values:<b>%v</b> </div>",
+			menus.GetMenu()+content+"<div>Values:<b>%v</b> </div>",
 			cms.Form.Fields(),
 		)
 	}
