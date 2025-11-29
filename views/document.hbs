@@ -1,12 +1,30 @@
 <!DOCTYPE html>
 <html lang="{{lang}}">
-    <head></head>
+    <head>
+      <style> 
+        body{flex-direction:column;max-width:1400px;margin:auto;}
+    
+        body,main{display:flex;}     
+        main{
+        flex-direction: row;
+        display: flex;
+        flex-wrap: wrap;
+        }
+        nav,header,main,section,footer{;padding:10px;}
+      </style>
+    </head>
     <body>
-<header>
-  <nav>{{{nav}}}</nav>
+    <header>
   <h1>{{title}}</h1>
   </header>
-  <main>{{{body}}}</main>
+
+
+  <main>
+    <nav>{{{nav}}}</nav>
+    <section>
+  {{{body}}}
+  </section>
+  </main>
 
 </body>
 </html>
