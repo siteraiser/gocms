@@ -11,7 +11,9 @@ import (
 // controllers
 func Index(welcome_message string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+		cms := app.Cms(r).Header.Set("Content-Type", "text/html; charset=utf-8")
+
 		ctx := models.Post{
 			models.Person{"Jean", "Valjean"},
 			"Life is difficult",
@@ -23,13 +25,13 @@ func Index(welcome_message string) http.Handler {
 			},
 		}
 
-		home := app.Render("blogtemplate.hbs", ctx)
+		home := cms.Views.Render("blogtemplate.hbs", ctx)
 		ctx2 := models.Page{
-			Lang:  app.Config.Settings.Preferences.Language,
+			Lang:  app.Config.Settings.Language,
 			Title: string(welcome_message),
 			Body:  home + "<a href='/test'>Test page</a><br><a href='/another/value1/and/value2'>Any Vars Test page</a><br><a href='/another/value1/link'>Named Vars Test page</a><br><a href='/autorouted'>Auto-routed page</a>",
 		}
-		fmt.Fprintf(w, "%v", app.Render("document.hbs", ctx2))
+		cms.Views.Add("document.hbs", ctx2)
 	})
 }
 

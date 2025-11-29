@@ -99,7 +99,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	//if still not found then check for auto-routed controllers/functions (package/function)...
 	var hfn http.HandlerFunc
-	if !found && Config.Settings.Preferences.AutoRoutes {
+	if !found && Config.Settings.AutoRoutes {
 		hfn, found = router.AutoRouteIt(path, urlsegs)
 		if found {
 			routetype = "auto"
@@ -127,6 +127,20 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					req.Handler.ServeHTTP(w, r.WithContext(ctx))
 				case "auto":
 					req.HandlerFunc.ServeHTTP(w, r.WithContext(ctx))
+				}
+			}
+
+			if Config.Settings.UseViewOutput == true {
+
+				if Requests[requestid].ResponseType[0] == "" {
+					w.Header().Set("Content-Type", "text/html; charset=utf-8")
+				} else {
+					w.Header().Set(Requests[requestid].ResponseType[0], Requests[requestid].ResponseType[1])
+				}
+				_, err := w.Write([]byte(Requests[requestid].Output))
+				Requests[requestid].Output = ""
+				if err != nil {
+					fmt.Println("Error writing response:", err)
 				}
 			}
 		}
@@ -165,7 +179,8 @@ Uses some app.functions to actually get the values.
 
 func Cms(r *http.Request) cms {
 	return cms{
-		URL: URL{R: r},
+		Header: Header{R: r},
+		URL:    URL{R: r},
 		Any: URLAnyValue{
 			R:    r,
 			Vals: AnyValues(r),
@@ -177,11 +192,17 @@ func Cms(r *http.Request) cms {
 }
 
 type cms struct {
-	URL   URL
-	Any   URLAnyValue
-	Named URLNameValue
-	Form  Form
-	Views Views
+	Header Header
+	URL    URL
+	Any    URLAnyValue
+	Named  URLNameValue
+	Form   Form
+	Views  Views
+}
+
+type Header struct {
+	SetType func(http.Request, string, string)
+	R       *http.Request
 }
 
 type RequestValues struct {
@@ -217,6 +238,12 @@ type Views struct {
 
 func (r URL) Path() string {
 	return r.R.URL.Path
+}
+
+// Set header type for correct output
+func (r Header) Set(key string, value string) cms {
+	Requests[GetId(r.R)].ResponseType = [2]string{key, value}
+	return Cms(r.R)
 }
 
 // Returns url.Values from "url.Parse" function

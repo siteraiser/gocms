@@ -10,12 +10,11 @@ import (
 type Configuration struct {
 	Name     string `json:"Name"`
 	Settings struct {
-		Preferences struct {
-			Language       string `json:"Language"`
-			TemplateEngine string `json:"TemplateEngine"`
-			BaseUrl        string `json:"BaseUrl"`
-			AutoRoutes     bool   `json:"AutoRoutes"`
-		}
+		Language       string `json:"Language"`
+		TemplateEngine string `json:"TemplateEngine"`
+		BaseUrl        string `json:"BaseUrl"`
+		AutoRoutes     bool   `json:"AutoRoutes"`
+		UseViewOutput  bool   `json:"UseViewOutput"`
 	}
 }
 
@@ -37,7 +36,7 @@ func GetConfig() Configuration {
 	if err != nil {
 		panic(err)
 	}
-	BaseUrl = config.Settings.Preferences.BaseUrl
+	BaseUrl = config.Settings.BaseUrl
 	//	fmt.Printf("Type: %+v\n", config.Settings.Preferences.Language)
 	//	fmt.Printf("Name: %+v\n", config.Settings.Preferences.TemplateEngine)
 	return config

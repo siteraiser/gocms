@@ -29,7 +29,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	page := app.Render(
 		"layouts/main.mustache",
 		map[string]string{
-			"Lang":  app.Config.Settings.Preferences.Language,
+			"Lang":  app.Config.Settings.Language,
 			"Title": title,
 			"embed": embed,
 		},
@@ -45,7 +45,7 @@ func Page2(w http.ResponseWriter, r *http.Request) {
 	cms.Views.Add(
 		"layouts/main.mustache",
 		map[string]string{
-			"Lang":  app.Config.Settings.Preferences.Language,
+			"Lang":  app.Config.Settings.Language,
 			"Title": "Page 2",
 			"embed": "Some Contents",
 		})
@@ -59,7 +59,7 @@ func Page3(w http.ResponseWriter, r *http.Request) {
 	App.Views.Add(
 		"layouts/main.mustache",
 		map[string]string{
-			"Lang":  app.Config.Settings.Preferences.Language,
+			"Lang":  app.Config.Settings.Language,
 			"Title": "Page 3",
 			"embed": "Some Other Contents",
 		})

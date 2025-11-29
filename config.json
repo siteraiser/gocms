@@ -1,13 +1,10 @@
 {
-
     "Name":"My App",
     "Settings":{
-        "Preferences":{
-            "Language":"en-us",
-            "TemplateEngine":"",
-            "BaseUrl":"http://localhost:8080/",
-            "AutoRoutes":true
-        }
+        "Language":"en-us",
+        "TemplateEngine":"",
+        "BaseUrl":"http://localhost:8080/",
+        "AutoRoutes":true,
+        "UseViewOutput":true
     }
-
 }
