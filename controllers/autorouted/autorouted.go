@@ -47,22 +47,21 @@ func Page2(w http.ResponseWriter, r *http.Request) {
 		map[string]string{
 			"Lang":  app.Config.Settings.Language,
 			"Title": "Page 2",
-			"embed": "Some Contents",
+			"embed": "<div>autorouted.Page2  </div><a href=\"/autorouted/page3\">Page 3</a>",
 		})
-	time.Sleep(time.Second * 5)
-	fmt.Fprintf(w, "<div>autoloaded.Page2  </div><a href=\"/autorouted/page3\">Page 3</a>%v", cms.Views.Out())
+	time.Sleep(time.Second * 4)
 }
 
 func Page3(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	App := app.Cms(r)
+	time.Sleep(time.Second * 2)
 	App.Views.Add(
 		"layouts/main.mustache",
 		map[string]string{
 			"Lang":  app.Config.Settings.Language,
 			"Title": "Page 3",
-			"embed": "Some Other Contents",
+			"embed": "Some Other Contents<div>autorouted.Page3  </div",
 		})
-	time.Sleep(time.Second * 5)
-	fmt.Fprintf(w, "<div>autoloaded.Page3  </div>%v", App.Views.Out())
+	time.Sleep(time.Second * 2)
 }

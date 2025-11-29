@@ -132,10 +132,12 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 			if Config.Settings.UseViewOutput == true {
 
-				if Requests[requestid].ResponseType[0] == "" {
+				if len(Requests[requestid].Headers) == 0 {
 					w.Header().Set("Content-Type", "text/html; charset=utf-8")
 				} else {
-					w.Header().Set(Requests[requestid].ResponseType[0], Requests[requestid].ResponseType[1])
+					for _, header := range Requests[requestid].Headers {
+						w.Header().Set(header[0], header[1])
+					}
 				}
 				_, err := w.Write([]byte(Requests[requestid].Output))
 				Requests[requestid].Output = ""
@@ -242,7 +244,7 @@ func (r URL) Path() string {
 
 // Set header type for correct output
 func (r Header) Set(key string, value string) cms {
-	Requests[GetId(r.R)].ResponseType = [2]string{key, value}
+	Requests[GetId(r.R)].Headers = append(Requests[GetId(r.R)].Headers, [2]string{key, value})
 	return Cms(r.R)
 }
 
