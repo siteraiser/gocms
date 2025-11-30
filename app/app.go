@@ -202,14 +202,8 @@ type cms struct {
 	Views  Views
 }
 
-type ResponseTypesList struct {
-	TextPlain [2]string
-	TextHtml  [2]string
-	TextJson  [2]string
-}
 type Header struct {
-	Type string
-	R    *http.Request
+	R *http.Request
 }
 
 type URL struct {
@@ -244,6 +238,12 @@ func (r URL) Path() string {
 func (r Header) Set(key string, value string) cms {
 	Requests[GetId(r.R)].Headers = append(Requests[GetId(r.R)].Headers, [2]string{key, value})
 	return Cms(r.R)
+}
+
+type ResponseTypesList struct {
+	TextPlain [2]string
+	TextHtml  [2]string
+	TextJson  [2]string
 }
 
 /* Different preset response type headers*/
