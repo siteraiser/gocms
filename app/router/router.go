@@ -211,9 +211,8 @@ func AutoRouteIt(path string, urlsegs []string) (http.HandlerFunc, bool) {
 		package_name = "controller"
 	}
 	mvcroute := package_name + "/" + controller_name
-	fmt.Println("mvcroute: ", mvcroute)
+	//	fmt.Println("mvcroute: ", mvcroute)
 	if fn, exists := controllers.List[mvcroute]; exists {
-
 		return fn, true
 	} else {
 		fmt.Println("Package not found", controller_name)

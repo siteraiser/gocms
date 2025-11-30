@@ -101,6 +101,8 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		route, anyvalues, namedvalues, found = router.RouteIt(path, r.Method)
 		if found {
 			routetype = "secondary"
+		} else {
+			route = router.Route{}
 		}
 	}
 
@@ -110,6 +112,8 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		hfn, found = router.AutoRouteIt(path, urlsegs)
 		if found {
 			routetype = "auto"
+		} else {
+			hfn = nil
 		}
 	}
 
@@ -166,7 +170,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		fmt.Printf("\nServed from %v router:  %v in %v\n", routetype, path, time.Since(start))
-		fmt.Println("route: ", route)
+		//fmt.Println("\nRoute: ", route)
 		//If combining content from multiple views, flush after serving
 
 		flusher.Flush()
@@ -180,7 +184,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Println("Not found with router: ", path)
-	fmt.Println("route: ", route)
+	fmt.Println("\nRoute: ", route)
 
 	w.WriteHeader(http.StatusNotFound)
 	w.Write([]byte("Custom 404: Page not found"))

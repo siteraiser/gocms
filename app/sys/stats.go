@@ -20,6 +20,7 @@ func SysStats() {
 
 			fmt.Printf("\rAllocated Memory: %v KB", memStats.Alloc/1024)
 			time.Sleep(500 * time.Millisecond)
+			//maybe add in the number of current requests as a stat too
 		}
 	}()
 
