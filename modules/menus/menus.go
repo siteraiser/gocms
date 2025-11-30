@@ -38,7 +38,7 @@ func GetMenu() string {
 	}
 	var output = ""
 	MakeMenu(menu.Items, &output)
-	return output
+	return "<ul>" + output + "</ul>"
 }
 func MakeMenu(items []Item, output *string) ([]Item, *string) {
 	for _, item := range items {
