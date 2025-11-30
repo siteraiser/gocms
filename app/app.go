@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"slices"
 
 	"gocms/app/models"
 	"gocms/app/router"
@@ -132,37 +133,31 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				case "auto":
 					req.HandlerFunc.ServeHTTP(w, r.WithContext(ctx))
 				}
-			}
 
-			if Config.Settings.UseViewOutput == true {
+				if Config.Settings.UseViewOutput == true {
 
-				if len(Requests[requestid].Headers) == 0 {
-					w.Header().Set("Content-Type", "text/html; charset=utf-8")
-				} else {
-					for _, header := range Requests[requestid].Headers {
-						w.Header().Set(header[0], header[1])
+					if len(Requests[requestid].Headers) == 0 {
+						w.Header().Set("Content-Type", "text/html; charset=utf-8")
+					} else {
+						for _, header := range Requests[requestid].Headers {
+							w.Header().Set(header[0], header[1])
+						}
+					}
+
+					output := &Requests[requestid].Output
+					if slices.Contains(strings.Split(r.Header.Get("accept-encoding"), ","), "gzip") && routetype != "primary" && len(*output) != 0 {
+
+						// Set headers for gzip encoding
+						w.Header().Set("Content-Encoding", "gzip")
+						w.Header().Del("Content-Length") // Remove Content-Length as it changes after compression
+						*output = gzipper(output)
+					}
+					_, err = w.Write(*output)
+					Requests[requestid].Output = nil
+					if err != nil {
+						fmt.Println("Error writing response:", err)
 					}
 				}
-
-				output := Requests[requestid].Output
-				if false { //slices.Contains(strings.Split(r.Header.Get("accept-encoding"), ","), "gzip")
-					fmt.Println("Header:", w.Header())
-					//	var writer *gzip.Writer
-					// Set headers for gzip encoding
-					w.Header().Set("Content-Encoding", "gzip")
-					w.Header().Del("Content-Length") // Remove Content-Length as it changes after compression
-					//	w.Header().Del("X-Request-Id")   // Remove Content-Length as it changes after compression
-					//	writer, err = gzip.NewWriterLevel(w, gzip.BestCompression)
-
-					gzipper(&output)
-				}
-
-				_, err = w.Write(output)
-				Requests[requestid].Output = nil
-				if err != nil {
-					fmt.Println("Error writing response:", err)
-				}
-				break
 
 			}
 
@@ -199,6 +194,7 @@ func gzipper(a *[]byte) []byte {
 	if _, err := gz.Write(*a); err != nil {
 		panic(err)
 	}
+	gz.Close()
 	//	gz.Flush()
 	return b.Bytes()
 }
