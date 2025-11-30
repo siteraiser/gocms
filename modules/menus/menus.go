@@ -38,8 +38,6 @@ func GetMenu() string {
 	}
 	var output = ""
 	MakeMenu(menu.Items, &output)
-	fmt.Printf("menu: %+v\n", menu)
-	fmt.Printf("out: %+v\n", output)
 	return output
 }
 func MakeMenu(items []Item, output *string) ([]Item, *string) {
@@ -50,7 +48,6 @@ func MakeMenu(items []Item, output *string) ([]Item, *string) {
 		} else {
 			href = "<span>" + item.Name + "</span>"
 		}
-
 		*output = *output + "<li class=\"nav-item\">" + href
 		if len(item.Children) > 0 {
 			*output += "<ul>"
@@ -58,7 +55,6 @@ func MakeMenu(items []Item, output *string) ([]Item, *string) {
 			*output += "</ul>"
 		}
 		*output += "</li>"
-		fmt.Printf("children: %+v\n", items)
 	}
 	return []Item{}, output
 }

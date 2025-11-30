@@ -202,16 +202,14 @@ type cms struct {
 	Views  Views
 }
 
-type Header struct {
-	SetType func(http.Request, string, string)
-	R       *http.Request
+type ResponseTypesList struct {
+	TextPlain [2]string
+	TextHtml  [2]string
+	TextJson  [2]string
 }
-
-type RequestValues struct {
-	AnyValue     func(int) string
-	NamedValue   func(string) string
-	URLAnyVals   []string
-	URLNamedVals map[string]string
+type Header struct {
+	Type string
+	R    *http.Request
 }
 
 type URL struct {
@@ -246,6 +244,37 @@ func (r URL) Path() string {
 func (r Header) Set(key string, value string) cms {
 	Requests[GetId(r.R)].Headers = append(Requests[GetId(r.R)].Headers, [2]string{key, value})
 	return Cms(r.R)
+}
+
+/**/
+var ResponseTypes = ResponseTypesList{
+	TextPlain: [2]string{"Content-Type", "text/plain; charset=utf-8"},
+	TextHtml:  [2]string{"Content-Type", "text/html; charset=utf-8"},
+	TextJson:  [2]string{"Content-Type", "text/json; charset=utf-8"},
+}
+
+func (r Header) SetTextPlain() cms {
+	setType(r, ResponseTypes.TextPlain, Requests[GetId(r.R)].Headers)
+	return Cms(r.R)
+}
+func (r Header) SetTextHtml() cms {
+	setType(r, ResponseTypes.TextHtml, Requests[GetId(r.R)].Headers)
+	return Cms(r.R)
+}
+func (r Header) SetTextJson() cms {
+	setType(r, ResponseTypes.TextJson, Requests[GetId(r.R)].Headers)
+	return Cms(r.R)
+}
+
+// helper for header set methods (looks for header and replaces if need be)
+func setType(r Header, typetuple [2]string, headers [][2]string) {
+	for i, header := range headers {
+		if header[0] == "Content-Type" {
+			Requests[GetId(r.R)].Headers[i] = typetuple
+			return
+		}
+	}
+	Requests[GetId(r.R)].Headers = append(Requests[GetId(r.R)].Headers, typetuple)
 }
 
 // Returns url.Values from "url.Parse" function

@@ -12,8 +12,7 @@ import (
 // controllers
 func Index(welcome_message string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-		cms := app.Cms(r).Header.Set("Content-Type", "text/html; charset=utf-8")
+		cms := app.Cms(r).Header.SetTextPlain()
 
 		ctx2 := models.Page{
 			Lang:  app.Config.Settings.Language,

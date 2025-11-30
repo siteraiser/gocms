@@ -41,6 +41,8 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 func Page2(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	//
+
 	cms := app.Cms(r)
 	cms.Views.Add(
 		"layouts/main.mustache",
