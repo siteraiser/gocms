@@ -15,9 +15,3 @@ type Request struct {
 	NamedValues  map[string]string
 	Output       string
 }
-
-type ResponseTypesList struct {
-	TextPlain [2]string
-	TextHtml  [2]string
-	TextJson  [2]string
-}

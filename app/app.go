@@ -1,8 +1,10 @@
 package app
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"slices"
 
 	"gocms/app/models"
 	"gocms/app/router"
@@ -14,6 +16,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"compress/gzip"
 
 	"github.com/google/uuid"
 )
@@ -139,7 +143,16 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						w.Header().Set(header[0], header[1])
 					}
 				}
-				_, err := w.Write([]byte(Requests[requestid].Output))
+
+				var output = []byte(Requests[requestid].Output)
+				if slices.Contains(strings.Split(r.Header.Get("accept-encoding"), ","), "gzip") {
+					w.Header().Set("Content-Encoding", "gzip")
+					gz := gzip.NewWriter(w)
+					defer gz.Close()
+					_, err = gz.Write(output)
+				} else {
+					_, err = w.Write(output)
+				}
 				Requests[requestid].Output = ""
 				if err != nil {
 					fmt.Println("Error writing response:", err)
@@ -167,6 +180,17 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Custom 404: Page not found"))
 	flusher.Flush()
 
+}
+
+func gzipper(a *[]byte) []byte {
+
+	var b bytes.Buffer
+	gz := gzip.NewWriter(&b)
+	defer gz.Close()
+	if _, err := gz.Write(*a); err != nil {
+		panic(err)
+	}
+	return b.Bytes()
 }
 
 var BaseUrl = ""
