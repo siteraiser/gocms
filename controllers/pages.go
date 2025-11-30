@@ -63,16 +63,14 @@ func RandoHandler() http.Handler {
 
 		worker := func(s *string, wg *sync.WaitGroup) {
 			defer wg.Done()
-			app.Mutex.Lock()
 			*s += strconv.Itoa(rand.Intn(1000000000000000))
-			app.Mutex.Unlock()
 		}
 
 		random := ""
 		var wg sync.WaitGroup
 
 		// Launch several workers
-		for i := 1; i <= 10; i++ {
+		for i := 1; i <= 100; i++ {
 			wg.Add(1) // Increment the WaitGroup counter
 			go worker(&random, &wg)
 		}
