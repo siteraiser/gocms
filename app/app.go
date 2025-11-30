@@ -145,7 +145,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					}
 
 					output := &Requests[requestid].Output
-					if slices.Contains(strings.Split(r.Header.Get("accept-encoding"), ","), "gzip") && routetype != "primary" && len(*output) != 0 {
+					if slices.Contains(strings.Split(r.Header.Get("accept-encoding"), ","), "gzip") && len(*output) != 0 {
 						// Set headers for gzip encoding
 						w.Header().Set("Content-Encoding", "gzip")
 						w.Header().Del("Content-Length") // Remove Content-Length as it changes after compression
