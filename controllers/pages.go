@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
+	"sync"
 )
 
 // controllers
@@ -51,6 +52,7 @@ func BlogHandler(welcome_message string) http.Handler {
 		cms.Views.Add("document.hbs", ctx2)
 	})
 }
+
 func RandoHandler() http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		// Set headers to prevent caching
@@ -59,10 +61,26 @@ func RandoHandler() http.Handler {
 		cms.Header.Set("Expires", "0")
 		cms.Header.Set("Content-Type", "text/html; charset=utf-8")
 
-		randomInt := rand.Intn(10000000)
-		fmt.Println("Random Integer:", randomInt)
+		worker := func(s *string, wg *sync.WaitGroup) {
+			defer wg.Done()
 
-		cms.Views.SetOut(cms.Views.Render("document.hbs", models.Page{Body: strconv.Itoa(randomInt)}))
+			*s += *s + strconv.Itoa(rand.Intn(1000000000000000))
+
+		}
+
+		random := ""
+		var wg sync.WaitGroup
+
+		// Launch several workers
+		for i := 1; i <= 10; i++ {
+			wg.Add(1) // Increment the WaitGroup counter
+			go worker(&random, &wg)
+		}
+		wg.Wait()
+		random = "<p style=\"word-break: break-all;\">" + random + "</p>"
+		//fmt.Println("Random Integer:", random)
+
+		cms.Views.SetOut(cms.Views.Render("document.hbs", models.Page{Body: random}))
 
 	}
 	return http.HandlerFunc(fn)
