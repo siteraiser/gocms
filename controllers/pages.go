@@ -63,9 +63,9 @@ func RandoHandler() http.Handler {
 
 		worker := func(s *string, wg *sync.WaitGroup) {
 			defer wg.Done()
-
-			*s += *s + strconv.Itoa(rand.Intn(1000000000000000))
-
+			app.Mutex.Lock()
+			*s += strconv.Itoa(rand.Intn(1000000000000000))
+			app.Mutex.Unlock()
 		}
 
 		random := ""
