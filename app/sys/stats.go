@@ -22,7 +22,7 @@ func SysStats() {
 			runtime.ReadMemStats(&memStats)
 			l := len(Stats.ReqRef)
 			s := func(l int) string {
-				if l > 0 || l == 0 {
+				if l != 1 {
 					return "s"
 				}
 				return ""
