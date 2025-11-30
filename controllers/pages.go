@@ -12,7 +12,7 @@ import (
 // controllers
 func Index(welcome_message string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cms := app.Cms(r).Header.SetTextPlain()
+		cms := app.Cms(r).Header.SetTextHtml()
 
 		ctx2 := models.Page{
 			Lang:  app.Config.Settings.Language,
