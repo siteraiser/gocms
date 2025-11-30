@@ -7,6 +7,7 @@ import (
 	"gocms/modules/menus"
 	"math/rand"
 	"net/http"
+	"strconv"
 )
 
 // controllers
@@ -28,7 +29,7 @@ func Index(welcome_message string) http.Handler {
 func BlogHandler(welcome_message string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		cms := app.Cms(r).Header.Set("Content-Type", "text/html; charset=utf-8")
+		cms := app.Cms(r)
 
 		ctx := models.Post{
 			Author: models.Person{FirstName: "Jean", LastName: "Valjean"},
@@ -53,15 +54,16 @@ func BlogHandler(welcome_message string) http.Handler {
 func RandoHandler() http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		// Set headers to prevent caching
-		w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
-		w.Header().Set("Pragma", "no-cache")
-		w.Header().Set("Expires", "0")
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		cms := app.Cms(r).Header.Set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+		cms.Header.Set("Pragma", "no-cache")
+		cms.Header.Set("Expires", "0")
+		cms.Header.Set("Content-Type", "text/html; charset=utf-8")
 
-		randomInt := rand.Intn(1000)
+		randomInt := rand.Intn(10000000)
 		fmt.Println("Random Integer:", randomInt)
 
-		fmt.Fprintf(w, "<div>Randomness %v\n </div>", randomInt)
+		cms.Views.SetOut(cms.Views.Render("document.hbs", models.Page{Body: strconv.Itoa(randomInt)}))
+
 	}
 	return http.HandlerFunc(fn)
 }
