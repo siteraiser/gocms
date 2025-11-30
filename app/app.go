@@ -8,6 +8,7 @@ import (
 
 	"gocms/app/models"
 	"gocms/app/router"
+	"gocms/app/sys"
 	"gocms/templates"
 	"net/http"
 	"net/url"
@@ -39,6 +40,8 @@ func NewApp(h http.Handler) {
 	Router = Routing{
 		h,
 	}
+	//Start stats display... maybe add some options to config
+	sys.SysStats()
 }
 
 type Handler struct{}
