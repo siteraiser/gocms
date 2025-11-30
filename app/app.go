@@ -311,6 +311,8 @@ func setType(r Header, typetuple [2]string, headers [][2]string) {
 	Requests[GetId(r.R)].Headers = append(Requests[GetId(r.R)].Headers, typetuple)
 }
 
+//Add presets maybe eg, html page, json api etc
+
 // Returns url.Values from "url.Parse" function
 func (r URL) QueryParams() url.Values {
 	parsedURL, err := url.Parse("?" + r.R.URL.RawQuery)
@@ -391,8 +393,26 @@ func (v Views) Add(location string, args any) string {
 }
 
 // Returns the view output from all prior Views.Add  calls
-func (v Views) Out() []byte {
+func (v Views) OutBytes() []byte {
 	return Requests[GetId(v.R)].Output
+}
+func (v Views) Out() string {
+	buffer := bytes.NewBuffer(Requests[GetId(v.R)].Output)
+	return buffer.String()
+}
+
+// Set to output
+func (v Views) SetOut(content string) string {
+	contentbytes := []byte(content)
+	Requests[GetId(v.R)].Output = append(Requests[GetId(v.R)].Output, contentbytes...)
+	return content
+}
+
+// Append to output
+func (v Views) OutAppend(content string) string {
+	contentbytes := []byte(content)
+	Requests[GetId(v.R)].Output = append(Requests[GetId(v.R)].Output, contentbytes...)
+	return content
 }
 
 // ---

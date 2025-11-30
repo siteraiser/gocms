@@ -1,7 +1,6 @@
 package autorouted
 
 import (
-	"fmt"
 	"gocms/app"
 	"net/http"
 	"time"
@@ -10,7 +9,6 @@ import (
 // auto-routed pages require this structure
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	title := "Another Title"
 
 	embed := app.Render(
@@ -36,13 +34,11 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	)
 
 	//	time.Sleep(time.Second * 5)
-	fmt.Fprintf(w, "%v", page)
+	//fmt.Fprintf(w, "%v", page)
+	app.Cms(r).Views.OutAppend(page)
 }
 
 func Page2(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	//
-
 	cms := app.Cms(r)
 	cms.Views.Add(
 		"layouts/main.mustache",
@@ -55,7 +51,6 @@ func Page2(w http.ResponseWriter, r *http.Request) {
 }
 
 func Page3(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	App := app.Cms(r)
 	time.Sleep(time.Second * 2)
 	App.Views.Add(
