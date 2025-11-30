@@ -263,7 +263,7 @@ func (r URL) Path() string {
 	return r.R.URL.Path
 }
 
-// Set header type for correct output
+// Add custom header
 func (r Header) Set(key string, value string) cms {
 	Requests[GetId(r.R)].Headers = append(Requests[GetId(r.R)].Headers, [2]string{key, value})
 	return Cms(r.R)
@@ -282,19 +282,19 @@ var ResponseTypes = ResponseTypesList{
 	TextJson:  [2]string{"Content-Type", "text/json; charset=utf-8"},
 }
 
-// "Content-Type", "text/plain; charset=utf-8"
+// Set response header to: "Content-Type", "text/plain; charset=utf-8"
 func (r Header) SetTextPlain() cms {
 	setType(r, ResponseTypes.TextPlain, Requests[GetId(r.R)].Headers)
 	return Cms(r.R)
 }
 
-// "Content-Type", "text/html; charset=utf-8"
+// Set response header to: "Content-Type", "text/html; charset=utf-8"
 func (r Header) SetTextHtml() cms {
 	setType(r, ResponseTypes.TextHtml, Requests[GetId(r.R)].Headers)
 	return Cms(r.R)
 }
 
-// "Content-Type", "text/json; charset=utf-8"
+// Set response header to: "Content-Type", "text/json; charset=utf-8"
 func (r Header) SetTextJson() cms {
 	setType(r, ResponseTypes.TextJson, Requests[GetId(r.R)].Headers)
 	return Cms(r.R)
@@ -401,10 +401,10 @@ func (v Views) Out() string {
 	return buffer.String()
 }
 
-// Set to output
+// Set output (overwrites content)
 func (v Views) SetOut(content string) string {
 	contentbytes := []byte(content)
-	Requests[GetId(v.R)].Output = append(Requests[GetId(v.R)].Output, contentbytes...)
+	Requests[GetId(v.R)].Output = contentbytes
 	return content
 }
 
