@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"slices"
 
 	"gocms/app/models"
 	"gocms/app/router"
@@ -124,6 +123,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			Requests[requestid].HandlerFunc = hfn
 		}
 		Mutex.Unlock()
+		Mutex.Lock()
 		for _, req := range Requests {
 			if req.Id == requestid {
 				switch req.RouteType {
@@ -144,21 +144,30 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					}
 				}
 
-				var output = []byte(Requests[requestid].Output)
-				if slices.Contains(strings.Split(r.Header.Get("accept-encoding"), ","), "gzip") {
+				output := Requests[requestid].Output
+				if false { //slices.Contains(strings.Split(r.Header.Get("accept-encoding"), ","), "gzip")
+					fmt.Println("Header:", w.Header())
+					//	var writer *gzip.Writer
+					// Set headers for gzip encoding
 					w.Header().Set("Content-Encoding", "gzip")
-					gz := gzip.NewWriter(w)
-					defer gz.Close()
-					_, err = gz.Write(output)
-				} else {
-					_, err = w.Write(output)
+					w.Header().Del("Content-Length") // Remove Content-Length as it changes after compression
+					//	w.Header().Del("X-Request-Id")   // Remove Content-Length as it changes after compression
+					//	writer, err = gzip.NewWriterLevel(w, gzip.BestCompression)
+
+					gzipper(&output)
 				}
-				Requests[requestid].Output = ""
+
+				_, err = w.Write(output)
+				Requests[requestid].Output = nil
 				if err != nil {
 					fmt.Println("Error writing response:", err)
 				}
+				break
+
 			}
+
 		}
+		Mutex.Unlock()
 		fmt.Printf("Served from %v router:  %v in %v\n", routetype, path, time.Since(start))
 		fmt.Println("route: ", route)
 		//If combining content from multiple views, flush after serving
@@ -190,6 +199,7 @@ func gzipper(a *[]byte) []byte {
 	if _, err := gz.Write(*a); err != nil {
 		panic(err)
 	}
+	//	gz.Flush()
 	return b.Bytes()
 }
 
@@ -380,12 +390,13 @@ func (v Views) Render(location string, args any) string {
 // Calls render function, appends to Response Ouptut and returns the string result
 func (v Views) Add(location string, args any) string {
 	content := Render(location, args)
-	Requests[GetId(v.R)].Output += content
+	contentbytes := []byte(content)
+	Requests[GetId(v.R)].Output = append(Requests[GetId(v.R)].Output, contentbytes...)
 	return content
 }
 
 // Returns the view output from all prior Views.Add  calls
-func (v Views) Out() string {
+func (v Views) Out() []byte {
 	return Requests[GetId(v.R)].Output
 }
 

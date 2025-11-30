@@ -6,12 +6,12 @@ type Request struct {
 	Id           string //UUID for x-request header
 	RouteType    string
 	ResponseType string
-	Headers      [][2]string
+	Headers      [][2]string //not ideal
 	Handler      http.Handler
 	HandlerFunc  http.HandlerFunc
 	Path         string
 	UrlSegments  []string
 	AnyValues    []string
 	NamedValues  map[string]string
-	Output       string
+	Output       []byte
 }
