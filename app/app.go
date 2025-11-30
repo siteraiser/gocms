@@ -246,21 +246,26 @@ func (r Header) Set(key string, value string) cms {
 	return Cms(r.R)
 }
 
-/**/
+/* Different preset response type headers*/
 var ResponseTypes = ResponseTypesList{
 	TextPlain: [2]string{"Content-Type", "text/plain; charset=utf-8"},
 	TextHtml:  [2]string{"Content-Type", "text/html; charset=utf-8"},
 	TextJson:  [2]string{"Content-Type", "text/json; charset=utf-8"},
 }
 
+// "Content-Type", "text/plain; charset=utf-8"
 func (r Header) SetTextPlain() cms {
 	setType(r, ResponseTypes.TextPlain, Requests[GetId(r.R)].Headers)
 	return Cms(r.R)
 }
+
+// "Content-Type", "text/html; charset=utf-8"
 func (r Header) SetTextHtml() cms {
 	setType(r, ResponseTypes.TextHtml, Requests[GetId(r.R)].Headers)
 	return Cms(r.R)
 }
+
+// "Content-Type", "text/json; charset=utf-8"
 func (r Header) SetTextJson() cms {
 	setType(r, ResponseTypes.TextJson, Requests[GetId(r.R)].Headers)
 	return Cms(r.R)
