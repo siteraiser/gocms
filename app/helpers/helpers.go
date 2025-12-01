@@ -6,6 +6,7 @@ type Html struct {
 	Href interface{ Ahref() }
 }
 
+// Returns an href element
 func (h Html) Ahref(href string, text string) string {
 	return html.Ahref(href, text)
 }
@@ -19,7 +20,7 @@ type Grammar struct {
 	}
 }
 
-// Returns an s if not equal to 1
+// Returns an uppercase "S" if number not equal to 1
 func (h Grammar) UpperIfPluralS(number int) string {
 	if number != 1 {
 		return "S"
@@ -27,7 +28,7 @@ func (h Grammar) UpperIfPluralS(number int) string {
 	return ""
 }
 
-// Returns an s if not equal to 1
+// Returns a lowercase "s" if number is not equal to 1
 func (h Grammar) LowerIfPluralS(number int) string {
 	if number != 1 {
 		return "s"
