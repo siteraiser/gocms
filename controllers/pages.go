@@ -29,7 +29,7 @@ func BlogHandler(welcome_message string) http.Handler {
 
 		cms := app.Cms(r)
 
-		ctx := models.Post{
+		post := models.Post{
 			Author: models.Person{FirstName: "Jean", LastName: "Valjean"},
 			Body:   "Life is difficult",
 			Comments: []models.Comment{
@@ -40,7 +40,7 @@ func BlogHandler(welcome_message string) http.Handler {
 			},
 		}
 
-		home := cms.Views.Render("blogtemplate.hbs", ctx)
+		home := cms.Views.Render("posttemplate.hbs", post)
 		page := cms.Utils.NewPage()
 		page.Title = "Welcome to the Handlebars example blog template"
 		page.Body = home + "<a href='/'>Home</a>"
