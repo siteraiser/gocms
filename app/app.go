@@ -41,8 +41,10 @@ func NewApp(h http.Handler) {
 		h,
 	}
 	//Start stats display... maybe add some options to config
-	sys.SysStats()
-	sys.Stats.ReqRef = Requests
+	if Config.Settings.StatsEnabled {
+		sys.SysStats()
+		sys.Stats.ReqRef = Requests
+	}
 }
 
 type Handler struct{}

@@ -5,6 +5,7 @@
         "TemplateEngine":"",
         "BaseUrl":"http://localhost:8080/",
         "AutoRoutes":true,
-        "UseViewOutput":true
+        "UseViewOutput":true,
+        "StatsEnabled":true
     }
 }

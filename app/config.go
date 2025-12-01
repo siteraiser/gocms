@@ -15,6 +15,7 @@ type Configuration struct {
 		BaseUrl        string `json:"BaseUrl"`
 		AutoRoutes     bool   `json:"AutoRoutes"`
 		UseViewOutput  bool   `json:"UseViewOutput"`
+		StatsEnabled   bool   `json:"StatsEnabled"`
 	}
 }
 
