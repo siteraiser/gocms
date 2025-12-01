@@ -119,7 +119,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if found {
-		Mutex.Lock()
+		//	Mutex.Lock()
 		Requests[requestid].Path = path
 		Requests[requestid].AnyValues = anyvalues
 		Requests[requestid].NamedValues = namedvalues
@@ -131,7 +131,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if routetype == "auto" {
 			Requests[requestid].HandlerFunc = hfn
 		}
-		Mutex.Unlock()
+		//	Mutex.Unlock()
 
 		for _, req := range Requests {
 			if req.Id == requestid {
@@ -178,9 +178,12 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// Do background work without blocking the client
 		go func() {
 			//ClearOutput(requestid)
-			Mutex.Lock() //consider r lock
+			//consider r lock
 			delete(Requests, requestid)
+			Mutex.Lock()
+			sys.Stats.TotalHits++
 			Mutex.Unlock()
+
 		}()
 		return
 	}

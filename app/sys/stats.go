@@ -8,8 +8,9 @@ import (
 )
 
 type SystemStats struct {
-	SysStats func()
-	ReqRef   map[string]*models.Request
+	SysStats  func()
+	ReqRef    map[string]*models.Request
+	TotalHits int
 }
 
 var Stats = SystemStats{}
@@ -27,7 +28,7 @@ func SysStats() {
 				}
 				return ""
 			}(l)
-			fmt.Printf("\rServing: %v Request%v - Allocated Memory: %v KB", l, s, memStats.Alloc/1024)
+			fmt.Printf("\rServing: %v Request%v - Total: %v - Allocated Memory: %v KB", l, s, Stats.TotalHits, memStats.Alloc/1024)
 
 			//maybe add in the number of current requests as a stat too
 		}
