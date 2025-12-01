@@ -11,11 +11,43 @@ func (h Html) Ahref(href string, text string) string {
 }
 
 type Grammar struct {
-	PluralS interface {
-		PluralS(href string, text string) string
+	UPluralS interface {
+		UpperIfPluralS(l int) string
+	}
+	LPluralS interface {
+		UpperIfPluralS(l int) string
 	}
 }
 
-func (h Html) PluralS(href string, text string) string {
-	return html.Ahref(href, text)
+// Returns an s if not equal to 1
+func (h Grammar) UpperIfPluralS(l int) string {
+	if l != 1 {
+		return "S"
+	}
+	return ""
 }
+
+// Returns an s if not equal to 1
+func (h Grammar) LowerIfPluralS(l int) string {
+	if l != 1 {
+		return "s"
+	}
+	return ""
+}
+
+/*
+type Presets struct {
+	PluralS interface {
+		GetPluralS(href string, text string) string
+	}
+}
+
+
+	s := func(l int) string {
+				if l != 1 {
+					return "s"
+				}
+				return ""
+			}(l)
+
+*/

@@ -16,13 +16,10 @@ import (
 func Index(welcome_message string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cms := app.Cms(r)
-		ctx2 := models.Page{
-			Lang:  app.Config.Settings.Language,
-			Title: welcome_message,
-			Nav:   menus.Nav(),
-			Body:  "Total Hits: " + strconv.Itoa(sys.Stats.TotalHits),
-		}
-		cms.Views.Add("document.hbs", ctx2)
+		ctx := cms.Utils.NewPage()
+		ctx.Title = welcome_message
+		ctx.Body = "Total Hits: " + strconv.Itoa(sys.Stats.TotalHits)
+		cms.Views.Add("document.hbs", ctx)
 	})
 }
 

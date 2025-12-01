@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"gocms/app/helpers"
+	"gocms/models"
+	"gocms/modules/menus"
 	"net/http"
 	"net/url"
 )
@@ -69,6 +71,7 @@ type Views struct {
 
 type Utils struct {
 	Html helpers.Html
+	//	Presets helpers.Presets
 }
 
 func (r URL) Path() string {
@@ -230,7 +233,15 @@ func (v Views) OutAppend(content string) string {
 }
 
 // Utils --------
-// Append to output
+// Make an href element
 func (h Utils) Ahref(href string, text string) string {
 	return helpers.Html.Ahref(helpers.Html{}, href, text)
+}
+
+// Auto fills a page template with Lang and Nav etc..
+func (h Utils) NewPage() models.Page {
+	return models.Page{
+		Lang: Config.Settings.Language,
+		Nav:  menus.Nav(),
+	}
 }
