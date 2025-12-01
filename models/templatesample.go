@@ -1,5 +1,7 @@
 package models
 
+import "gocms/modules/menus"
+
 type Page struct {
 	Lang  string
 	Title string
@@ -15,6 +17,12 @@ type TestIndexPage struct {
 	Lang     string
 	Title    string
 	Linklist []Link
+}
+
+type Nav struct{}
+
+func GetNav() string {
+	return menus.Nav()
 }
 
 /*

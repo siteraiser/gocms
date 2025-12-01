@@ -10,7 +10,7 @@ import (
 
 func addRoutes() {
 	router.Add("/assets/", http.StripPrefix("/assets/", system.Fs(http.Dir("./assets"))))
-	router.Add("/", controller.Index("Welcome!"))
+	router.Add("/", controller.Index("Welcome to GoCMS!"))
 	router.Add("/blog", controller.BlogHandler(""))
 	router.Add("/testpage/{$}", controller.TestPageHandler("test"))
 	router.Add("GET /another/{$}/and/{$}", controller.TestHandler())

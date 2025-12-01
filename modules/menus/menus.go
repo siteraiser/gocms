@@ -15,7 +15,7 @@ type Item struct {
 	Children []Item `json:"children"`
 }
 
-func GetMenu() string {
+func Nav() string {
 	menujsonstr := `[{
 	"url":"","name":"Main Menu",
 	"children":[
@@ -57,4 +57,29 @@ func MakeMenu(items []Item, output *string) ([]Item, *string) {
 		*output += "</li>"
 	}
 	return []Item{}, output
+}
+func FooterNav() string {
+	menujsonstr := `[{
+	"url":"","name":"Main Menu",
+	"children":[
+		{"url":"/","name":"Home"},
+		{"url":"/autorouted","name":"Auto-routed Index","children":[{"url":"/autorouted/page2","name":"Autorouted page2"}]},
+		{"url":"/test","name":"Test Page"}
+		]
+	},{
+	"url":"","name":"Other Section",
+	"children":[
+		{"url":"/another/value1/and/value2","name":"Any Vars Test page"},
+		{"url":"/another/value1/link","name":"Named Vars Test Page"}
+		]
+	}]`
+	// Unmarshal the JSON data
+	var menu Menu
+	err := json.Unmarshal([]byte(menujsonstr), &menu.Items)
+	if err != nil {
+		fmt.Printf("Error: %+v\n", err)
+	}
+	var output = ""
+	MakeMenu(menu.Items, &output)
+	return "<ul>" + output + "</ul>"
 }

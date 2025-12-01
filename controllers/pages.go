@@ -3,6 +3,7 @@ package controller
 import (
 	"fmt"
 	"gocms/app"
+	"gocms/app/sys"
 	"gocms/models"
 	"gocms/modules/menus"
 	"math/rand"
@@ -14,13 +15,12 @@ import (
 // controllers
 func Index(welcome_message string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cms := app.Cms(r).Header.SetTextHtml()
-
+		cms := app.Cms(r)
 		ctx2 := models.Page{
 			Lang:  app.Config.Settings.Language,
-			Title: string(welcome_message),
-			Nav:   menus.GetMenu(),
-			Body:  "<a href='/test'>Test page</a><br><a href='/another/value1/and/value2'>Any Vars Test page</a><br><a href='/another/value1/link'>Named Vars Test page</a><br><a href='/autorouted'>Auto-routed page</a><br><a href='/blog'>Blog</a>",
+			Title: welcome_message,
+			Nav:   menus.Nav(),
+			Body:  "Total Hits: " + strconv.Itoa(sys.Stats.TotalHits),
 		}
 		cms.Views.Add("document.hbs", ctx2)
 	})
@@ -59,7 +59,7 @@ func RandoHandler() http.Handler {
 		cms := app.Cms(r).Header.Set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
 		cms.Header.Set("Pragma", "no-cache")
 		cms.Header.Set("Expires", "0")
-		cms.Header.Set("Content-Type", "text/html; charset=utf-8")
+		//cms.Header.Set("Content-Type", "text/html; charset=utf-8")
 
 		worker := func(s *string, wg *sync.WaitGroup) {
 			defer wg.Done()
@@ -125,7 +125,7 @@ func OtherHandler(arguments string) http.Handler {
 
 		fmt.Fprintf(
 			w,
-			header+app.Ahref(link, "With params")+"<div>Values:<b>%v</b> </div>"+output,
+			header+cms.Utils.Html.Ahref(link, "With params")+"<div>Values:<b>%v</b> </div>"+output,
 			cms.URL.QueryParams(),
 		)
 	}
@@ -144,7 +144,7 @@ func FormHandler() http.Handler {
 
 		fmt.Fprintf(
 			w,
-			menus.GetMenu()+content+"<div>Values:<b>%v</b> </div>",
+			menus.Nav()+content+"<div>Values:<b>%v</b> </div>",
 			cms.Form.Fields(),
 		)
 	}
