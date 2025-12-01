@@ -16,10 +16,10 @@ import (
 func Index(welcome_message string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cms := app.Cms(r)
-		ctx := cms.Utils.NewPage()
-		ctx.Title = welcome_message
-		ctx.Body = strconv.Itoa(sys.Stats.TotalHits) + " page" + cms.Utils.Grammar.LowerIfPluralS(sys.Stats.TotalHits) + " served this session."
-		cms.Views.Add("document.hbs", ctx)
+		page := cms.Utils.NewPage()
+		page.Title = welcome_message
+		page.Body = strconv.Itoa(sys.Stats.TotalHits) + " page" + cms.Utils.Grammar.LowerIfPluralS(sys.Stats.TotalHits) + " served this session."
+		cms.Views.Add("document.hbs", page)
 	})
 }
 
@@ -41,12 +41,11 @@ func BlogHandler(welcome_message string) http.Handler {
 		}
 
 		home := cms.Views.Render("blogtemplate.hbs", ctx)
-		ctx2 := models.Page{
-			Lang:  app.Config.Settings.Language,
-			Title: "Welcome to the Handlebars example blog template",
-			Body:  home + "<a href='/'>Home</a>",
-		}
-		cms.Views.Add("document.hbs", ctx2)
+		page := cms.Utils.NewPage()
+		page.Title = "Welcome to the Handlebars example blog template"
+		page.Body = home + "<a href='/'>Home</a>"
+
+		cms.Views.Add("document.hbs", page)
 	})
 }
 
