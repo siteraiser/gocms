@@ -2,6 +2,7 @@ package sys
 
 import (
 	"fmt"
+	"gocms/app/helpers"
 	"gocms/app/models"
 	"runtime"
 	"time"
@@ -22,13 +23,8 @@ func SysStats() {
 			var memStats runtime.MemStats
 			runtime.ReadMemStats(&memStats)
 			l := len(Stats.ReqRef)
-			s := func(l int) string {
-				if l != 1 {
-					return "s"
-				}
-				return ""
-			}(l)
-			fmt.Printf("\rServing: %v Request%v - Total: %v - Allocated Memory: %v KB", l, s, Stats.TotalHits, memStats.Alloc/1024)
+
+			fmt.Printf("\rServing: %v Request%v - Total: %v - Allocated Memory: %v KB", l, helpers.Grammar.LowerIfPluralS(helpers.Grammar{}, l), Stats.TotalHits, memStats.Alloc/1024)
 
 			//maybe add in the number of current requests as a stat too
 		}

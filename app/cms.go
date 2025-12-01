@@ -70,8 +70,8 @@ type Views struct {
 }
 
 type Utils struct {
-	Html helpers.Html
-	//	Presets helpers.Presets
+	Html    helpers.Html
+	Grammar helpers.Grammar
 }
 
 func (r URL) Path() string {
@@ -233,11 +233,12 @@ func (v Views) OutAppend(content string) string {
 }
 
 // Utils --------
+/*
 // Make an href element
 func (h Utils) Ahref(href string, text string) string {
 	return helpers.Html.Ahref(helpers.Html{}, href, text)
 }
-
+*/
 // Auto fills a page template with Lang and Nav etc..
 func (h Utils) NewPage() models.Page {
 	return models.Page{

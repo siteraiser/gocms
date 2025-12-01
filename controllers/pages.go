@@ -18,7 +18,7 @@ func Index(welcome_message string) http.Handler {
 		cms := app.Cms(r)
 		ctx := cms.Utils.NewPage()
 		ctx.Title = welcome_message
-		ctx.Body = "Total Hits: " + strconv.Itoa(sys.Stats.TotalHits)
+		ctx.Body = strconv.Itoa(sys.Stats.TotalHits) + " page" + cms.Utils.Grammar.LowerIfPluralS(sys.Stats.TotalHits) + " served this session."
 		cms.Views.Add("document.hbs", ctx)
 	})
 }

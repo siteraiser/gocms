@@ -20,16 +20,16 @@ type Grammar struct {
 }
 
 // Returns an s if not equal to 1
-func (h Grammar) UpperIfPluralS(l int) string {
-	if l != 1 {
+func (h Grammar) UpperIfPluralS(number int) string {
+	if number != 1 {
 		return "S"
 	}
 	return ""
 }
 
 // Returns an s if not equal to 1
-func (h Grammar) LowerIfPluralS(l int) string {
-	if l != 1 {
+func (h Grammar) LowerIfPluralS(number int) string {
+	if number != 1 {
 		return "s"
 	}
 	return ""
