@@ -41,7 +41,7 @@ Uses some app.functions to actually get the values.
 
 func Cms(r *http.Request) cms {
 	return cms{
-		Db:     db.Db,
+		Db:     db.Db, //sqlite 2?
 		Header: Header{R: r},
 		URL:    URL{R: r},
 		Any: URLAnyValue{

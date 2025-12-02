@@ -25,7 +25,7 @@ func SysStats() {
 			runtime.ReadMemStats(&memStats)
 			l := len(Stats.ReqRef)
 
-			fmt.Printf("\rServing: %v Request%v - Total: %v - Allocated Memory: %v KB", l, helpers.Grammar.LowerIfPluralS(helpers.Grammar{}, l), Stats.TotalHits, memStats.Alloc/1024)
+			fmt.Printf("\rServing: %v Request%v - Total: %v | Allocated Memory: %v KB    ", l, helpers.Grammar.LowerIfPluralS(helpers.Grammar{}, l), Stats.TotalHits, memStats.Alloc/1024)
 
 			//maybe add in the number of current requests as a stat too
 		}
