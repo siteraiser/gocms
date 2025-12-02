@@ -1,8 +1,6 @@
 package router
 
 import (
-	"errors"
-	"fmt"
 	"net/http"
 	"path/filepath"
 	"reflect"
@@ -65,26 +63,6 @@ func AddFunc(controller http.HandlerFunc) {
 
 func getName(myvar interface{}) string {
 	return runtime.FuncForPC(reflect.ValueOf(myvar).Pointer()).Name()
-}
-
-func GetPage(w http.ResponseWriter, r *http.Request) error {
-	//Overrides normal app routes
-	/*if r.URL.Path == "/" {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		fmt.Fprintf(w, "<div>HOME:%v\n <a href='/task/1'>task 1</a> <a href='/app/1'>app 1</a></div>", r.URL.Path)
-
-	} else
-	*/
-	if r.URL.Path == "/test" {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		fmt.Fprintf(w, "<div><img src='/assets/media/images/pic.png'><br>test ok path:%v\n <a href='/'>home</a> <a href='/another/value1/and/value2'>Test page</a></div>", r.URL.Path)
-	} else {
-		err := errors.New("Something went wrong")
-		return err
-	}
-	//	fmt.Println("Served from primary routes: ", r.URL.Path)
-	return nil
-
 }
 
 func RouteIt(path string, method string) (Route, []string, map[string]string, bool) {
@@ -215,7 +193,7 @@ func AutoRouteIt(path string, urlsegs []string) (http.HandlerFunc, bool) {
 	if fn, exists := controllers.List[mvcroute]; exists {
 		return fn, true
 	} else {
-		fmt.Println("Package not found", controller_name)
+		//	fmt.Println("Package not found", controller_name)
 	}
 	//return found
 	return nil, false

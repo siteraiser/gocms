@@ -7,5 +7,13 @@
         "AutoRoutes":true,
         "UseViewOutput":true,
         "StatsEnabled":true
-    }
+    },
+    "Database":{
+        "Name":"gocms",
+        "Host":"127.0.0.1",
+        "Port":3306,
+        "UserName":"root",
+        "Password":"",
+        "DBEnabled":false
+    }        
 }

@@ -20,7 +20,7 @@ func Nav() string {
 	"url":"","name":"Main Menu",
 	"children":[
 		{"url":"/","name":"Home"},
-		{"url":"/autorouted","name":"Auto-routed Index","children":[{"url":"/autorouted/page2","name":"Autorouted page2"}]},
+		{"url":"/autorouted","name":"Auto-routed Index","children":[{"url":"/autorouted/page2","name":"Autorouted page2"},{"url":"/cms-page","name":"Content loaded from DB"}]},
 		{"url":"/test","name":"Test Page"}
 		]
 	},{

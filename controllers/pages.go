@@ -5,6 +5,7 @@ import (
 	"gocms/app"
 	"gocms/app/sys"
 	"gocms/models"
+	samplemodels "gocms/models/cms"
 	"gocms/modules/menus"
 	"math/rand"
 	"net/http"
@@ -16,9 +17,14 @@ import (
 func Index(welcome_message string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cms := app.Cms(r)
+
 		page := cms.Utils.NewPage()
 		page.Title = welcome_message
-		page.Body = strconv.Itoa(sys.Stats.TotalHits) + " page" + cms.Utils.Grammar.LowerIfPluralS(sys.Stats.TotalHits) + " served this session."
+		page.Body = strconv.Itoa(sys.Stats.TotalHits) +
+			" page" +
+			cms.Utils.Grammar.LowerIfPluralS(sys.Stats.TotalHits) +
+			" served this session."
+
 		cms.Views.Add("document.hbs", page)
 	})
 }
@@ -39,8 +45,8 @@ func BlogHandler(welcome_message string) http.Handler {
 				},
 			},
 		}
-
 		home := cms.Views.Render("posttemplate.hbs", post)
+
 		page := cms.Utils.NewPage()
 		page.Title = "Welcome to the Handlebars example blog template"
 		page.Body = home + "<a href='/'>Home</a>"
@@ -135,13 +141,14 @@ func FormHandler() http.Handler {
 		//app.Req(r).NamedValues["id"]
 		//or...for now...
 		cms := app.Cms(r)
-
+		input := cms.Form.Fields().Get("posted_value")
+		samplemodels.UpdatePage(input)
 		content := cms.Views.Render("forms/testform.hbs", nil)
 
 		fmt.Fprintf(
 			w,
-			menus.Nav()+content+"<div>Values:<b>%v</b> </div>",
-			cms.Form.Fields(),
+			menus.Nav()+"<h2>Update the <a href=\"/cms-page\">CMS Page</a></h2>"+content+"<div>Values:<b>%v</b> </div>",
+			"Page Updated.",
 		)
 	}
 	return http.HandlerFunc(fn)

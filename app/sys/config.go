@@ -1,4 +1,4 @@
-package app
+package sys
 
 import (
 	"encoding/json"
@@ -16,6 +16,14 @@ type Configuration struct {
 		AutoRoutes     bool   `json:"AutoRoutes"`
 		UseViewOutput  bool   `json:"UseViewOutput"`
 		StatsEnabled   bool   `json:"StatsEnabled"`
+	}
+	Database struct {
+		Name      string `json:"Name"`
+		Host      string `json:"Host"`
+		Port      int    `json:"Port"`
+		UserName  string `json:"UserName"`
+		Password  string `json:"Password"`
+		DBEnabled bool   `json:"DBEnabled"`
 	}
 }
 
@@ -37,7 +45,6 @@ func GetConfig() Configuration {
 	if err != nil {
 		panic(err)
 	}
-	BaseUrl = config.Settings.BaseUrl
 	//	fmt.Printf("Type: %+v\n", config.Settings.Preferences.Language)
 	//	fmt.Printf("Name: %+v\n", config.Settings.Preferences.TemplateEngine)
 	return config

@@ -2,13 +2,36 @@ package app
 
 import (
 	"bytes"
+	"database/sql"
+	"errors"
 	"fmt"
+	db "gocms/app/database"
 	"gocms/app/helpers"
+	sysmodels "gocms/app/models"
 	"gocms/models"
+
 	"gocms/modules/menus"
 	"net/http"
 	"net/url"
+
+	_ "github.com/go-sql-driver/mysql"
 )
+
+func GetPage(w http.ResponseWriter, r *http.Request) error {
+	//Overrides normal app routes
+	cms := Cms(r)
+	content := sysmodels.LoadByLink(cms.URL.Path())
+	if content != "" {
+		cms.Views.SetOut(content)
+		//	fmt.Fprintf(w, "<div><img src='/assets/media/images/pic.png'><br>test ok path:%v\n <a href='/'>home</a></div>", r.URL.Path)
+	} else {
+		err := errors.New("No DB Content Found")
+		return err
+	}
+	//	fmt.Println("Served from primary routes: ", r.URL.Path)
+	return nil
+
+}
 
 /*
 Main interface using app.Cms{}
@@ -18,6 +41,7 @@ Uses some app.functions to actually get the values.
 
 func Cms(r *http.Request) cms {
 	return cms{
+		Db:     db.Db,
 		Header: Header{R: r},
 		URL:    URL{R: r},
 		Any: URLAnyValue{
@@ -32,6 +56,7 @@ func Cms(r *http.Request) cms {
 }
 
 type cms struct {
+	Db     *sql.DB
 	Header Header
 	URL    URL
 	Any    URLAnyValue
@@ -233,12 +258,7 @@ func (v Views) OutAppend(content string) string {
 }
 
 // Utils --------
-/*
-// Make an href element
-func (h Utils) Ahref(href string, text string) string {
-	return helpers.Html.Ahref(helpers.Html{}, href, text)
-}
-*/
+
 // Auto fills a page template with Lang and Nav etc..
 func (h Utils) NewPage() models.Page {
 	return models.Page{

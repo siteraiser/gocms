@@ -3,12 +3,14 @@ package app
 import (
 	"bytes"
 	"context"
+	"database/sql"
 	"fmt"
-	"slices"
-
+	db "gocms/app/database"
 	"gocms/app/models"
 	"gocms/app/router"
 	"gocms/app/sys"
+	"slices"
+
 	"gocms/templates"
 	"net/http"
 	"os"
@@ -34,16 +36,32 @@ type Routing struct {
 }
 
 var Router Routing
+var Config sys.Configuration
+var Db *sql.DB
 
 func NewApp(h http.Handler) {
 	Router = Routing{
 		h,
 	}
+
+	Config = sys.Config
+	BaseUrl = Config.Settings.BaseUrl
 	//Start stats display... maybe add some options to config
 	if Config.Settings.StatsEnabled {
 		sys.SysStats()
 		sys.Stats.ReqRef = Requests
 	}
+	//Start Db
+	if Config.Database.UserName != "" {
+		Db = db.InitDB(db.DbConfig{
+			UserName: Config.Database.UserName,
+			Password: Config.Database.Password,
+			Host:     Config.Database.Host,
+			Port:     Config.Database.Port,
+			DbName:   Config.Database.Name,
+		})
+	}
+
 }
 
 type Handler struct{}
@@ -88,7 +106,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	req.UrlSegments = urlsegs
 
 	//try custom / primary...
-	err := router.GetPage(w, r.Clone(ctx))
+	err := GetPage(w, r.Clone(ctx))
 	if err == nil {
 		routetype = "primary"
 		found = true
@@ -178,7 +196,6 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		flusher.Flush()
 		// Do background work without blocking the client
 		go func() {
-			//ClearOutput(requestid)
 			//consider r lock
 			delete(Requests, requestid)
 			Mutex.Lock()
@@ -189,12 +206,18 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Println("Not found with router: ", path)
-	fmt.Println("\nRoute: ", route)
+	//	fmt.Println("\nRoute: ", route)
 
 	w.WriteHeader(http.StatusNotFound)
 	w.Write([]byte("Custom 404: Page not found"))
 	flusher.Flush()
+	go func() {
+		delete(Requests, requestid)
+		Mutex.Lock() //consider r lock
+		sys.Stats.TotalHits++
+		Mutex.Unlock()
 
+	}()
 }
 
 func gzipper(a *[]byte) []byte {
@@ -212,7 +235,7 @@ func gzipper(a *[]byte) []byte {
 
 var BaseUrl = ""
 
-var Requests = make(map[string]*models.Request)
+var Requests = map[string]*models.Request{}
 
 // ------------------------------
 // Common functions via app.*
