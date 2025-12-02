@@ -142,13 +142,18 @@ func FormHandler() http.Handler {
 		//or...for now...
 		cms := app.Cms(r)
 		input := cms.Form.Fields().Get("posted_value")
-		samplemodels.UpdatePage(input)
+		output := ""
+		if input != "" {
+			samplemodels.UpdatePage(input)
+			output = "Page Updated."
+		}
+
 		content := cms.Views.Render("forms/testform.hbs", nil)
 
 		fmt.Fprintf(
 			w,
 			menus.Nav()+"<h2>Update the <a href=\"/cms-page\">CMS Page</a></h2>"+content+"<div>Values:<b>%v</b> </div>",
-			"Page Updated.",
+			output,
 		)
 	}
 	return http.HandlerFunc(fn)
